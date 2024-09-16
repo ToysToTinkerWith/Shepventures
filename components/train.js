@@ -6,7 +6,7 @@ import { Grid, Typography, Button, CircularProgress } from "@mui/material"
 import { useWallet } from '@txnlab/use-wallet'
 
 import algosdk from "algosdk"
-import DisplayJolly from "./displayShep"
+import DisplayShep from "./displayShep"
 
 export default function Train(props) { 
 
@@ -19,7 +19,7 @@ export default function Train(props) {
 
   const [ confirm, setConfirm] = useState("")
 
-  const [ contract ] = useState(1371810703)
+  const [ contract ] = useState(2254344958)
 
   const [progress, setProgress] = useState(0)
 
@@ -180,7 +180,7 @@ export default function Train(props) {
 
           if (asset.option == "claim") {
             appArgs.push(
-              new Uint8Array(Buffer.from("claim"))
+              new Uint8Array(Buffer.from("roll"))
             )
           }
           else if (asset.option == "stake") {
@@ -208,10 +208,12 @@ export default function Train(props) {
             let accountBoxPlace = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("place"))])
             let accountBoxTime = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("time"))])
             let accountBoxXp = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xp"))])
+            let accountBoxShep = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("stats"))])
+
 
 
           
-            const boxes = [{appIndex: 0, name: accountBoxPlace}, {appIndex: 0, name: accountBoxTime}, {appIndex: 0, name: accountBoxXp}]
+            const boxes = [{appIndex: 0, name: accountBoxPlace}, {appIndex: 0, name: accountBoxTime}, {appIndex: 0, name: accountBoxXp}, {appIndex: 0, name: accountBoxShep}]
       
             let dtxn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, contract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
       
@@ -398,7 +400,7 @@ export default function Train(props) {
               {assets.length > 0 ? assets.map((asset, index) => {
                 return (
                   <Grid key={index} item xs={6} sm={4} md={4} lg={3} style={{padding: 20}}>
-                  <DisplayJolly mode={props.mode} nftId={asset.asset.index} reward={asset.reward} round={round} cashAssets={cashAssets} setCashAssets={setCashAssets} place={"train"} sendDiscordMessage={props.sendDiscordMessage}/>
+                  <DisplayShep mode={props.mode} nftId={asset.asset.index} reward={asset.reward} round={round} cashAssets={cashAssets} setCashAssets={setCashAssets} place={"train"} sendDiscordMessage={props.sendDiscordMessage}/>
                   </Grid>
                 )
                 

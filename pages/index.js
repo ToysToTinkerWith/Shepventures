@@ -6,6 +6,8 @@ import Nav from "../components/nav/nav"
 
 import Home from "../components/home"
 import Train from "../components/train"
+import Quest from "../components/quest"
+
 
 import { useWallet } from '@txnlab/use-wallet'
 
@@ -38,6 +40,12 @@ export default function Index(props) {
 
                {page == "TRAIN" ? 
                <Train sendDiscordMessage={props.sendDiscordMessage} mode={mode} />
+                :
+                null
+                }
+
+                {page == "QUEST" ? 
+               <Quest sendDiscordMessage={props.sendDiscordMessage} mode={mode} />
                 :
                 null
                 }

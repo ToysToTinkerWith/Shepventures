@@ -41,8 +41,6 @@ export default function MyApp(props) {
 
   const [ wallet, setWallet ] = useState([])
 
-  //council: 1225804311
-
   let contracts = {}
 
 

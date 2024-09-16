@@ -18,7 +18,6 @@ export default function Connect(props) {
     
 })
 
-console.log(props)
   // Map through the providers.
   // Render account information and "connect", "set active", and "disconnect" buttons.
   // Finally, map through the `accounts` property to render a dropdown for each connected account.
