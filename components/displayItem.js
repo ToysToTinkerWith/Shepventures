@@ -4,6 +4,8 @@ import { Typography, Button, Grid } from "@mui/material"
 
 import { useWallet } from '@txnlab/use-wallet'
 
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
 import algosdk from "algosdk"
 
 const byteArrayToLong = (byteArray) => {
@@ -54,9 +56,17 @@ export default function DisplayItem(props) {
                     
                     let session = await response.json()
 
+                    console.log(session)
+
 
                     setNft(session.assets[0].params)
-                    setNftUrl("https://ipfs.algonode.xyz/ipfs/" + session.assets[0].params.url.slice(7))
+                    if (props.nftId == 2582590415) {
+                        setNftUrl("meep.png")
+                    }
+                    else {
+                        setNftUrl("https://ipfs.algonode.xyz/ipfs/" + session.assets[0].params.url.slice(7))
+
+                    }
 
                     let assetBox = algosdk.encodeUint64(props.nftId)
 
@@ -173,11 +183,13 @@ export default function DisplayItem(props) {
 
             let shepStats = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("stats"))])
             let shepItems = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("items"))])
+            let shepPlace = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("place"))])
+
 
             let itemBytes = longToByteArray(props.nftId)
 
 
-            let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}]
+            let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}, {appIndex: 0, name: shepPlace}]
 
             let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
@@ -222,11 +234,13 @@ export default function DisplayItem(props) {
 
                 let shepStats = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("stats"))])
                 let shepItems = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("items"))])
+                let shepPlace = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("place"))])
+
 
                 let itemBytes = longToByteArray(props.equipped)
 
 
-                let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}]
+                let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}, {appIndex: 0, name: shepPlace}]
 
                 let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
@@ -263,11 +277,13 @@ export default function DisplayItem(props) {
 
         let shepStats = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("stats"))])
         let shepItems = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("items"))])
+        let shepPlace = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("place"))])
+
 
         let itemBytes = longToByteArray(props.nftId)
 
 
-        let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}]
+        let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}, {appIndex: 0, name: shepPlace}]
 
         let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
@@ -302,6 +318,19 @@ export default function DisplayItem(props) {
 
     }
 
+    const removeElement = () => {
+
+        let newAssets = []
+        props.craftAssets.forEach((asset) => {
+            if (asset.index != props.index) {
+                newAssets.push(asset)
+            }
+        })
+
+        props.setCraftAssets(newAssets)
+
+      }
+
 
 
     if (props.nftId == 0) {
@@ -327,8 +356,101 @@ export default function DisplayItem(props) {
         }
         
     }
+    else if (props.type == "craft" && nft) {
+        return (
+            <div>
+                <img style={{width: "50%", borderRadius: 10}} src={nftUrl} />
 
-    if (nft) {
+            </div>
+        )
+    }
+
+    else if (props.type == "dust" && nft) {
+        return(
+            <div>
+            
+                <Button variant="contained" color="secondary" 
+                style={{backgroundColor: props.mode == "light" ? "#EE9B00" : "#9B2226", borderRadius: 25}}
+                onClick={() => props.craftAssets.findIndex(craftAsset => craftAsset.index === props.index) != -1 ?
+                    removeElement()
+                    :
+                    props.craftAssets.length > 6 ?
+                    null
+                    :
+                    props.setCraftAssets([...props.craftAssets, {assetId: props.nftId, index: props.index, rarity: props.rarity}])}
+                >
+                    <div style={{display: "grid"}}>
+                        <div style={{display: "flex"}}>
+                            <img style={{width: "50%", borderRadius: 10}} src={nftUrl} />
+
+                            {props.rarity == "common" ?
+                            <div style={{display: "flex", marginLeft: 10, marginTop: 10}}>
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> +2 </Typography> 
+                                <img style={{width: "60%", height: "50%"}} src={"common.png"} />
+                            </div>
+                            :
+                            null
+                            }
+                            {props.rarity == "uncommon" ?
+                            <div style={{display: "flex", marginLeft: 10, marginTop: 10}}>
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> +7 </Typography> 
+                                <img style={{width: "60%", height: "50%"}} src={"common.png"} />
+                            </div>
+                            :
+                            null
+                            }
+                            {props.rarity == "rare" ?
+                            <div style={{display: "grid", marginLeft: 10}}>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> +15 </Typography> 
+                                    <img style={{width: "50%"}} src={"common.png"} />
+                                </div>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, paddingLeft: 12, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> +2 </Typography> 
+                                    <img style={{width: "50%"}} src={"rare.png"} />
+                                </div>
+                            </div>
+                            :
+                            null
+                            }
+                            {props.rarity == "legendary" ?
+                            <div style={{display: "grid", marginLeft: 10}}>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> +35 </Typography> 
+                                    <img style={{width: "50%"}} src={"common.png"} />
+                                </div>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, paddingLeft: 15, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> +7 </Typography> 
+                                    <img style={{width: "50%"}} src={"rare.png"} />
+                                </div>
+                            </div>
+                            :
+                            null
+                            }
+                        </div>
+
+
+                    
+                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", margin: 20, display: "grid", color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> Dust </Typography> 
+                    
+                    </div>
+                    
+                    
+                {props.craftAssets.findIndex(craftAsset => craftAsset.index === props.index) != -1 ? 
+                <CheckCircleIcon style={{color: props.mode == "light" ? "#000000" : "#FFFFFF"}} />
+                :
+                null
+                }
+
+                </Button>
+               
+            </div>
+        )
+    }
+
+    else if (nft) {
+
+        
 
         if (props.type == "img") {
             return (
@@ -364,7 +486,7 @@ export default function DisplayItem(props) {
     else {
         return (
             <div>
-
+                
             </div>
         )
     }

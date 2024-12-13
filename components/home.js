@@ -8,6 +8,8 @@ export default function Home(props) {
 
     const [isTrainHovered, setTrainHovered] = useState(false)
     const [isQuestHovered, setQuestHovered] = useState(false)
+    const [isCraftHovered, setCraftHovered] = useState(false)
+
 
 
     return (
@@ -38,6 +40,21 @@ export default function Home(props) {
                     <Typography color="primary"  align="center" variant="h1" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Train </Typography>
                 :
                     <Typography color="primary"  align="center" variant="h2" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Train </Typography>
+                }
+                <img src={"Train.svg"} style={{width: "50px"}} />
+
+            </Button>
+            
+            </Grid>
+            <Grid item xs={12} sm={12} style={{paddingTop: "10vh"}}>
+            <Button style={{backgroundColor: "#EE9B00", boxShadow: "rgba(0, 0, 0, 0.15) 3.95px 3.95px 2.6px"}} 
+            onMouseEnter={() => setCraftHovered(true)}
+            onMouseLeave={() => setCraftHovered(false)} 
+            onClick={() => props.activeAccount ? props.setPage("CRAFT") : props.setPage("connect")}>
+                {isCraftHovered ? 
+                    <Typography color="primary"  align="center" variant="h1" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Craft </Typography>
+                :
+                    <Typography color="primary"  align="center" variant="h2" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Craft </Typography>
                 }
                 <img src={"Train.svg"} style={{width: "50px"}} />
 

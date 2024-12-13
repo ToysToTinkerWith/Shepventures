@@ -38,6 +38,9 @@ def approval_program():
             App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xp")), Itob(Add(Btoi(xp.value()), Div(Minus(Txn.first_valid(), Btoi(time.value())), Int(1000))))),
             App.box_put(Concat(Itob(Txn.assets[0]), Bytes("time")), Itob(Txn.first_valid()))
         )],
+        [place.value() == Bytes("ocean"), Seq(
+            
+        )],
         ),
         Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("place")))),
         time := App.box_get(Concat(Itob(Txn.assets[0]), Bytes("time"))),
@@ -71,7 +74,7 @@ def approval_program():
         time := App.box_get(Concat(Itob(Txn.assets[0]), Bytes("time"))),
         shepStats := App.box_get(Concat(Itob(Txn.assets[0]), Bytes("stats"))),
         surRoll.store(Mod(Add(Block.timestamp(Minus(Txn.first_valid(), Int(1))), Btoi(Substring(Txn.tx_id(), Int(0), Int(8)))), Int(200))),
-        powRoll.store(Mod(Block.timestamp(Minus(Txn.first_valid(), Int(1))), Int(100))),
+        powRoll.store(Mod(Block.timestamp(Minus(Txn.first_valid(), Int(1))), Int(1000))),
         level.store(Sqrt(Div(Btoi(xp.value()), Int(100))) + Int(1)),
         If(level.load() >= Int(1),
             survival.store(Add(Div(Minus(level.load(), Int(1)), Int(5)), Int(1)) + Div(level.load(), Int(5)) + Div(level.load(), Int(10))),
@@ -95,9 +98,16 @@ def approval_program():
             App.box_put(Concat(Itob(Txn.assets[0]), Bytes("time")), Itob(Txn.first_valid()))
         )],
         [place.value() == Bytes("ocean"), Seq(
+            powRoll.store(Div(powRoll.load(), Int(10))),
             Assert(Txn.first_valid() - Add(Btoi(time.value()), Mul(Minus(Int(200), Minus(Add(Btoi(Extract(shepStats.value(), Int(24), Int(8))), speed.load()), Int(300))), Int(600))) > Int(0)),
             App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xp")), Itob(Add(Minus(Mul(Int(4), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(1400)), Btoi(xp.value())))),
             App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(4), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())), Int(1420))), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())), Int(775))))),
+            Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("time"))))
+        )],
+        [place.value() == Bytes("temple"), Seq(
+            Assert(Txn.first_valid() - Add(Btoi(time.value()), Mul(Minus(Int(200), Minus(Add(Btoi(Extract(shepStats.value(), Int(24), Int(8))), speed.load()), Int(300))), Int(1500))) > Int(0)),
+            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xp")), Itob(Add(Minus(Div(Mul(Int(105), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(3675)), Btoi(xp.value())))),
+            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(4), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())), Int(1520))), Itob(Minus(Mul(Int(5), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())), Int(1000))))),
             Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("time"))))
         )]
         ),
@@ -127,15 +137,7 @@ def approval_program():
             If(Btoi(Extract(result.value(), Int(0), Int(8))) <= Btoi(Extract(result.value(), Int(16), Int(8))),
                If(Btoi(Extract(result.value(), Int(8), Int(8))) <= Btoi(Extract(result.value(), Int(24), Int(8))),
                   Seq(
-                    uncommonsBox := App.box_get(Bytes("uncommons")),
-                    App.box_replace(Bytes("uncommons"), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(uncommonsBox.value()), Int(16))), Int(16)), Int(8)), Itob(Btoi(Extract(uncommonsBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(uncommonsBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1))),
-                    App.box_put(Concat(Itob(Txn.assets[0]), Bytes("reward")), Itob(Btoi(Extract(uncommonsBox.value(), Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(uncommonsBox.value()), Int(16))), Int(16)), Int(8))))),
-                    If(Btoi(Extract(uncommonsBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(uncommonsBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1) == Int(0),
-                       Seq(
-                           Assert(App.box_delete(Bytes("uncommons"))),
-                           App.box_put(Bytes("uncommons"), Concat(Substring(uncommonsBox.value(), Int(0), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(uncommonsBox.value()), Int(16))), Int(16)), Int(8)) - Int(8)), Substring(uncommonsBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(uncommonsBox.value()), Int(16))), Int(16)), Int(8)) + Int(8), Len(uncommonsBox.value()))))
-                       )
-                    ),
+                    App.box_put(Concat(Itob(Txn.assets[0]), Bytes("reward")), Itob(Int(2582590415))),
                   ),
                   Seq(
                     commonsBox := App.box_get(Bytes("commons")),
@@ -151,6 +153,48 @@ def approval_program():
                )
             ),
         )],
+        [place.value() == Bytes("temple"), Seq(
+            If(Btoi(Extract(result.value(), Int(0), Int(8))) <= Btoi(Extract(result.value(), Int(16), Int(8))),
+               Cond(
+                   [Add(Btoi(Extract(result.value(), Int(8), Int(8))), Int(1000)) < Btoi(Extract(result.value(), Int(24), Int(8))), Seq(
+                    legendarysBox := App.box_get(Bytes("legendarys")),
+                    App.box_replace(Bytes("legendarys"), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(legendarysBox.value()), Int(16))), Int(16)), Int(8)), Itob(Btoi(Extract(legendarysBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(legendarysBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1))),
+                    App.box_put(Concat(Itob(Txn.assets[0]), Bytes("reward")), Itob(Btoi(Extract(legendarysBox.value(), Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(legendarysBox.value()), Int(16))), Int(16)), Int(8))))),
+                    If(Btoi(Extract(legendarysBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(legendarysBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1) == Int(0),
+                       Seq(
+                           Assert(App.box_delete(Bytes("legendarys"))),
+                           App.box_put(Bytes("legendarys"), Concat(Substring(legendarysBox.value(), Int(0), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(legendarysBox.value()), Int(16))), Int(16)), Int(8)) - Int(8)), Substring(legendarysBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(legendarysBox.value()), Int(16))), Int(16)), Int(8)) + Int(8), Len(legendarysBox.value()))))
+                       )
+                    ),
+                  )],
+                   [Add(Btoi(Extract(result.value(), Int(8), Int(8))), Int(1000)) < Minus(Add(Add(Btoi(Extract(result.value(), Int(24), Int(8))), Int(100)), Btoi(Extract(result.value(), Int(24), Int(8)))), Int(1000)), Seq(
+                    raresBox := App.box_get(Bytes("rares")),
+                    App.box_replace(Bytes("rares"), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(raresBox.value()), Int(16))), Int(16)), Int(8)), Itob(Btoi(Extract(raresBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(raresBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1))),
+                    App.box_put(Concat(Itob(Txn.assets[0]), Bytes("reward")), Itob(Btoi(Extract(raresBox.value(), Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(raresBox.value()), Int(16))), Int(16)), Int(8))))),
+                    If(Btoi(Extract(raresBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(raresBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1) == Int(0),
+                       Seq(
+                           Assert(App.box_delete(Bytes("rares"))),
+                           App.box_put(Bytes("rares"), Concat(Substring(raresBox.value(), Int(0), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(raresBox.value()), Int(16))), Int(16)), Int(8)) - Int(8)), Substring(raresBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(raresBox.value()), Int(16))), Int(16)), Int(8)) + Int(8), Len(raresBox.value()))))
+                       )
+                    ),
+                  )],
+                   [Add(Btoi(Extract(result.value(), Int(8), Int(8))), Int(1000)) < Minus(Add(Add(Btoi(Extract(result.value(), Int(24), Int(8))), Int(500)), Mul(Btoi(Extract(result.value(), Int(24), Int(8))), Int(2))), Int(2000)), Seq(
+                        App.box_put(Concat(Itob(Txn.assets[0]), Bytes("reward")), Itob(Int(2582590415))),
+                  )],
+                   [Int(1), Seq(
+                    commonsBox := App.box_get(Bytes("commons")),
+                    App.box_replace(Bytes("commons"), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(commonsBox.value()), Int(16))), Int(16)), Int(8)), Itob(Btoi(Extract(commonsBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(commonsBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1))),
+                    App.box_put(Concat(Itob(Txn.assets[0]), Bytes("reward")), Itob(Btoi(Extract(commonsBox.value(), Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(commonsBox.value()), Int(16))), Int(16)), Int(8))))),
+                    If(Btoi(Extract(commonsBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(commonsBox.value()), Int(16))), Int(16)), Int(8)), Int(8))) - Int(1) == Int(0),
+                       Seq(
+                           Assert(App.box_delete(Bytes("commons"))),
+                           App.box_put(Bytes("commons"), Concat(Substring(commonsBox.value(), Int(0), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(commonsBox.value()), Int(16))), Int(16)), Int(8)) - Int(8)), Substring(commonsBox.value(), Add(Mul(Mod(Btoi(Extract(result.value(), Int(8), Int(8))), Div(Len(commonsBox.value()), Int(16))), Int(16)), Int(8)) + Int(8), Len(commonsBox.value()))))
+                       )
+                    ),
+                  )]
+               ),
+            ),
+        )]
         ),
         Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("place")))),
         Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("result")))),
@@ -165,6 +209,8 @@ def approval_program():
         Assert(Gtxn[Minus(Txn.group_index(), Int(1))].xfer_asset() == Txn.assets[0]),
         Assert(Gtxn[Minus(Txn.group_index(), Int(1))].asset_receiver() == Global.current_application_address()),
         Assert(Gtxn[Minus(Txn.group_index(), Int(1))].asset_amount() == Int(1)),
+        place := App.box_get(Concat(Itob(Txn.assets[1]), Bytes("place"))),
+        Assert(Not(place.hasValue())),
         shepItems := App.box_get(Concat(Itob(Txn.assets[1]), Bytes("items"))),
         shepStats := App.box_get(Concat(Itob(Txn.assets[1]), Bytes("stats"))),
         Cond(
@@ -192,6 +238,8 @@ def approval_program():
         assetCreator := AssetParam.creator(Txn.assets[1]),
         Assert(senderAssetBalance.value() == Int(1)),
         Assert(assetCreator.value() == Addr("SHEPWD4POJMJ65XPSGUCJ4GI2SGDJNDX2C2IXI24EK5KXTOV5T237ULUCU")),
+        place := App.box_get(Concat(Itob(Txn.assets[1]), Bytes("place"))),
+        Assert(Not(place.hasValue())),
         shepItems := App.box_get(Concat(Itob(Txn.assets[1]), Bytes("items"))),
         Cond(
         [Txn.application_args[1] == Bytes("weapon"), Assert(Substring(shepItems.value(), Int(0), Int(8)) != Itob(Int(0)))],
@@ -229,14 +277,28 @@ def approval_program():
         Assert(assetCreator.value() == Addr("SHEPWD4POJMJ65XPSGUCJ4GI2SGDJNDX2C2IXI24EK5KXTOV5T237ULUCU")),
         reward := App.box_get(Concat(Itob(Txn.assets[0]), Bytes("reward"))),
         Assert(Btoi(reward.value()) == Txn.assets[1]),
-        InnerTxnBuilder.Begin(),
-        InnerTxnBuilder.SetFields({
-            TxnField.type_enum: TxnType.AssetTransfer,
-            TxnField.xfer_asset: Txn.assets[1],
-            TxnField.asset_receiver: Txn.sender(),
-            TxnField.asset_amount: Int(1),
-        }),
-        InnerTxnBuilder.Submit(),
+        If(Btoi(reward.value()) == Int(2582590415),
+           Seq(
+               InnerTxnBuilder.Begin(),
+                InnerTxnBuilder.SetFields({
+                    TxnField.type_enum: TxnType.AssetTransfer,
+                    TxnField.xfer_asset: Txn.assets[1],
+                    TxnField.asset_receiver: Txn.sender(),
+                    TxnField.asset_amount: Int(6942069000000),
+                }),
+                InnerTxnBuilder.Submit()
+           ),
+           Seq(
+               InnerTxnBuilder.Begin(),
+                InnerTxnBuilder.SetFields({
+                    TxnField.type_enum: TxnType.AssetTransfer,
+                    TxnField.xfer_asset: Txn.assets[1],
+                    TxnField.asset_receiver: Txn.sender(),
+                    TxnField.asset_amount: Int(1),
+                }),
+                InnerTxnBuilder.Submit(),
+           )
+        ),
         Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("reward")))),
         Int(1)
     )
@@ -263,6 +325,19 @@ def approval_program():
     deleteBox = Seq(
         Assert(Txn.sender() == Addr("NSPLIQLVYV7US34UDYGYPZD7QGSHWND7AWSWPD4FTLRGW5IF2P2R3IF3EQ")),
         Assert(App.box_delete(Txn.application_args[1])),
+        Int(1)
+    )
+
+    sendAsset = Seq(
+        Assert(Txn.sender() == Addr("NSPLIQLVYV7US34UDYGYPZD7QGSHWND7AWSWPD4FTLRGW5IF2P2R3IF3EQ")),
+        InnerTxnBuilder.Begin(),
+        InnerTxnBuilder.SetFields({
+            TxnField.type_enum: TxnType.AssetTransfer,
+            TxnField.xfer_asset: Txn.assets[0],
+            TxnField.asset_receiver: Txn.accounts[1],
+            TxnField.asset_amount: Btoi(Txn.application_args[1]),
+        }),
+        InnerTxnBuilder.Submit(),
         Int(1)
     )
 
@@ -295,7 +370,9 @@ def approval_program():
         [Txn.application_args[0] == Bytes("claimReward"), Return(claimReward)],
         [Txn.application_args[0] == Bytes("optItem"), Return(optItem)],
         [Txn.application_args[0] == Bytes("addBox"), Return(addBox)],
-        [Txn.application_args[0] == Bytes("deleteBox"), Return(deleteBox)]
+        [Txn.application_args[0] == Bytes("deleteBox"), Return(deleteBox)],
+        [Txn.application_args[0] == Bytes("sendAsset"), Return(sendAsset)]
+
 
 
 

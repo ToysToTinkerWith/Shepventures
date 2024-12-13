@@ -325,6 +325,8 @@ export default function Quest(props) {
 
                 const res1 = await addr1.json()
 
+                
+
                 res1.assets.forEach((asset) => {
                   if (accountAssets.includes(asset.index)) {
                   sheps.push({asset: asset})
@@ -369,7 +371,6 @@ export default function Quest(props) {
                   }
                   
                 })
-
                 setWeapons(weapons)
                 setArmours(armours)
                 setBoots(boots)
@@ -388,7 +389,7 @@ export default function Quest(props) {
               }
       }
 
-      const startQuest = async (shep) => {
+      const startQuest = async (shep, quest) => {
 
         const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
 
@@ -399,7 +400,7 @@ export default function Quest(props) {
         const appArgs = []
         appArgs.push(
             new Uint8Array(Buffer.from("addAsset")),
-            new Uint8Array(Buffer.from("ocean"))
+            new Uint8Array(Buffer.from(quest))
 
         )
 
@@ -519,6 +520,8 @@ export default function Quest(props) {
 
         let commons = new Uint8Array(Buffer.from("commons"))
         let uncommons = new Uint8Array(Buffer.from("uncommons"))
+        let rares = new Uint8Array(Buffer.from("rares"))
+        let legendarys = new Uint8Array(Buffer.from("legendarys"))
 
         let shepBytes = longToByteArray(shep)
 
@@ -528,7 +531,7 @@ export default function Quest(props) {
 
 
 
-        let boxes = [{appIndex: 0, name: shepBox}, {appIndex: 0, name: shepReward}, {appIndex: 0, name: shepResult}, {appIndex: 0, name: commons}, {appIndex: 0, name: uncommons}]
+        let boxes = [{appIndex: 0, name: shepBox}, {appIndex: 0, name: shepReward}, {appIndex: 0, name: shepResult}, {appIndex: 0, name: commons}, {appIndex: 0, name: uncommons}, {appIndex: 0, name: rares}, {appIndex: 0, name: legendarys}]
 
 
         let rtxn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
@@ -715,7 +718,6 @@ export default function Quest(props) {
           
             <div style={{backgroundColor: props.mode == "light" ? "#E9D8A6" : "#33363F", height: "100%", minHeight: "100vh"}}>
   
-              {activeAccount.address == "ADYPJJIQZFQZXIRU7D43U5HIH5GSYUF3VRYA5UJXHWGNMWZR23CRH7CIKY" || activeAccount.address == "VWYCYQ3H3PPNIGON4H363DIH7BP33TTZWUUUNMTDXCIHRCDPFOMU7VJ5HM" ?
                 <Grid container>
                 {assets.length > 0 ? assets.map((asset, index) => {
                     
@@ -738,9 +740,7 @@ export default function Quest(props) {
                
                   
                </Grid>
-            :
-            null
-            }
+            
               
                
                 
