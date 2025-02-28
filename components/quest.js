@@ -171,16 +171,16 @@ export default function Quest(props) {
 
                 equipmentRes.assets.forEach((asset) => {
                   if (accountAssets.includes(asset.index)) {
-                    if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027) {
+                    if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027 || asset.index == 2534864660 || asset.index == 2534864644) {
                       weapons.push(asset.index)
                     }
-                    if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029) {
+                    if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029 || asset.index == 2534864662 || asset.index == 2534864633) {
                       armours.push(asset.index)
                     }
-                    if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036) {
+                    if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index == 2534864668 || asset.index == 2534864648) {
                       extras.push(asset.index)
                     }
-                    if (asset.index >= 2164941907 && asset.index <= 2164941923) {
+                    if (asset.index >= 2164941907 && asset.index <= 2164941923 || asset.index == 2534864657 || asset.index == 2534864646) {
                       boots.push(asset.index)
                     }
                   }
@@ -356,16 +356,16 @@ export default function Quest(props) {
 
                 equipmentRes.assets.forEach((asset) => {
                   if (accountAssets.includes(asset.index)) {
-                    if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027) {
+                    if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027 || asset.index == 2534864660 || asset.index == 2534864644) {
                       weapons.push(asset.index)
                     }
-                    if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029) {
+                    if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029 || asset.index == 2534864662 || asset.index == 2534864633) {
                       armours.push(asset.index)
                     }
-                    if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036) {
+                    if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index == 2534864668 || asset.index == 2534864648) {
                       extras.push(asset.index)
                     }
-                    if (asset.index >= 2164941907 && asset.index <= 2164941923) {
+                    if (asset.index >= 2164941907 && asset.index <= 2164941923 || asset.index == 2534864657 || asset.index == 2534864646) {
                       boots.push(asset.index)
                     }
                   }

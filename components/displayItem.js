@@ -6,6 +6,12 @@ import { useWallet } from '@txnlab/use-wallet'
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
+import { CID } from 'multiformats/cid'
+
+import * as mfsha2 from 'multiformats/hashes/sha2'
+import * as digest from 'multiformats/hashes/digest'
+
+
 import algosdk from "algosdk"
 
 const byteArrayToLong = (byteArray) => {
@@ -42,6 +48,8 @@ export default function DisplayItem(props) {
 
                 try {
 
+                    const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
+
                     let response = await fetch('/api/getNft', {
                         method: "POST",
                         headers: {
@@ -56,15 +64,44 @@ export default function DisplayItem(props) {
                     
                     let session = await response.json()
 
-                    console.log(session)
+                    
 
+                    if (session.assets[0].params.name == "Ohio Bronze") {
+                        console.log(session.assets[0].params)
+                    }
 
                     setNft(session.assets[0].params)
-                    if (props.nftId == 2582590415) {
+                    if(session.assets[0].params.url == "template-ipfs://{ipfscid:1:raw:reserve:sha2-256}") {
+                        const addr = algosdk.decodeAddress(session.assets[0].params.reserve)
+    
+                        const mhdigest = digest.create(mfsha2.sha256.code, addr.publicKey)
+    
+                        const ocid = CID.create(1, 0x55, mhdigest)
+    
+                        console.log(ocid.toString())
+    
+    
+                        fetch("https://gateway.pinata.cloud/ipfs/" + ocid.toString(), {
+                            method: 'get'
+                        }).then(async (response) => {
+                            let data = await response.json()
+                            
+                                setNftUrl("https://ipfs.algonode.dev/ipfs/" + data.image.slice(7))
+                            
+    
+                        }).catch(function(err) {
+                            // Error :(
+                        });
+                        
+    
+                      
+    
+                    }
+                    else if (props.nftId == 2582590415) {
                         setNftUrl("meep.png")
                     }
                     else {
-                        setNftUrl("https://ipfs.algonode.xyz/ipfs/" + session.assets[0].params.url.slice(7))
+                        setNftUrl("https://ipfs.algonode.dev/ipfs/" + session.assets[0].params.url.slice(7))
 
                     }
 
@@ -72,8 +109,36 @@ export default function DisplayItem(props) {
 
                     const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
 
+                    let cat
 
-                    let itemStats = await client.getApplicationBoxByName(2254344958, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from(props.cat))])).do();
+                    if (props.cat) {
+                        cat = props.cat
+                    }
+                    else {
+                        let assetConfig = await indexerClient.lookupAssetTransactions(props.nftId)
+                        .txType("acfg")
+                        .do();
+    
+                        let properties = JSON.parse(atob(assetConfig.transactions[assetConfig.transactions.length - 1].note))
+        
+                        if (properties.properties.Category == "Armor") {
+                            cat = "armour"
+                        }
+                        if (properties.properties.Category == "Accessory") {
+                            cat = "extra"
+                        }
+                        if (properties.properties.Category == "Weapon") {
+                            cat = "weapon"
+                        }
+                        if (properties.properties.Category == "Footwear") {
+                            cat = "boots"
+                        }
+                    }
+
+                    
+
+
+                    let itemStats = await client.getApplicationBoxByName(2254344958, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from(cat))])).do();
 
 
                     let survival = byteArrayToLong(itemStats.value.slice(0,8))
@@ -273,6 +338,8 @@ export default function DisplayItem(props) {
             
         const foreignAssets = [props.nftId, props.shep]
 
+        console.log(foreignAssets)
+
         let shepBytes = longToByteArray(props.shep)
 
         let shepStats = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("stats"))])
@@ -359,7 +426,68 @@ export default function DisplayItem(props) {
     else if (props.type == "craft" && nft) {
         return (
             <div>
+                <Button variant="contained" color="secondary" 
+                style={{backgroundColor: props.mode == "light" ? "#EE9B00" : "#9B2226", borderRadius: 25}} 
+                onClick={() => props.craft(props.nftId, props.rarity)}>
                 <img style={{width: "50%", borderRadius: 10}} src={nftUrl} />
+                    <div style={{display: "grid"}}>
+                        <div style={{display: "flex"}}>
+
+                            {props.rarity == "T1" ?
+                            <div style={{display: "grid", marginLeft: 10}}>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> -50 </Typography> 
+                                    <img style={{width: "50%"}} src={"common.png"} />
+                                </div>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> -1m </Typography> 
+                                    <img style={{width: "40%", height: "40%", maxWidth: 80, marginLeft: 10}} src={"meep.png"} />
+                                </div>
+                            </div>
+                            :
+                            null
+                            }
+                            {props.rarity == "T2" ?
+                            <div style={{display: "grid", marginLeft: 10}}>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> -50 </Typography> 
+                                    <img style={{width: "50%"}} src={"common.png"} />
+                                </div>
+                                <div style={{display: "flex", margin: "auto"}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> -20 </Typography> 
+                                    <img style={{width: "50%"}} src={"rare.png"} />
+                                </div>
+                                <div style={{display: "flex", margin: "auto", marginRight: 20}}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> -10m </Typography> 
+                                    <img style={{width: "50%", height: "50%", maxWidth: 80, marginLeft: 5}} src={"meep.png"} />
+                                </div>
+                            </div>
+                            :
+                            null
+                            }
+
+                        </div>
+                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", margin: 20, display: "grid", color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> Craft </Typography>
+                        <Grid container>
+                            <Grid item xs={6} sm={6} md={6} style={{display: "grid"}}>
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> Sur <br /> {survival - 100} </Typography> 
+                            </Grid>
+                            <Grid item xs={6} sm={6} md={6}>
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> Pow <br /> {power - 100} </Typography> 
+                            </Grid>
+                            <Grid item xs={6} sm={6} md={6}>
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> XP <br /> {XP - 100} </Typography> 
+                            </Grid>
+                            <Grid item xs={6} sm={6} md={6}>
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: props.mode == "light" ? "#000000" : "#FFFFFF"}}> spe <br /> {speed - 100} </Typography> 
+                            </Grid>
+                        </Grid>
+
+                    </div>
+
+
+                
+                </Button>
 
             </div>
         )

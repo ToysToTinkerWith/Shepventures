@@ -99,7 +99,7 @@ export default class DisplayShep extends React.Component {
     
             this.setState({
                 nft: session.assets[0].params,
-                nftUrl: "https://ipfs.algonode.xyz/ipfs/" + session.assets[0].params.url.slice(7),
+                nftUrl: "https://ipfs.algonode.dev/ipfs/" + session.assets[0].params.url.slice(7),
             })
         
             const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
@@ -312,7 +312,7 @@ export default class DisplayShep extends React.Component {
         
                 this.setState({
                     nft: session.assets[0].params,
-                    nftUrl: "https://ipfs.algonode.xyz/ipfs/" + session.assets[0].params.url.slice(7),
+                    nftUrl: "https://ipfs.algonode.dev/ipfs/" + session.assets[0].params.url.slice(7),
                 })
             
                 const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
@@ -588,6 +588,8 @@ export default class DisplayShep extends React.Component {
 
     render() {
 
+        console.log(this.state)
+
         function secondsToDhms(seconds) {
             seconds = Number(seconds)
             var d = Math.floor(seconds / (3600 * 24))
@@ -650,7 +652,28 @@ export default class DisplayShep extends React.Component {
 
         if (this.state.nft && this.state.display) {
 
-            if (this.props.display == "collection") {
+            if (this.props.place == "leaderboardXp") {
+
+                return (
+
+                    <div style={{position: "relative", backgroundColor: this.props.mode == "light" ? "#94D2BD" : "#005F73", borderRadius: 25, height: "100%"}}>
+                        
+                            <div style={{display: "grid", borderRadius: 15}}  >
+                                <img style={{width: "100%", borderRadius: 25, padding: 10, paddingBottom: 10}} src={this.state.nftUrl} /> 
+                                <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nft.name} </Typography>     
+                            </div>
+                        
+                        <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.xp - prevLvl) / (nextLvl - prevLvl)) * 100} />
+                        <Typography align="center" variant="caption" style={{fontFamily: "LondrinaSolid", display: "grid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.xp} / {nextLvl} </Typography>
+
+                        <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", display: "grid", margin: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Level {level} </Typography>
+
+                    </div>
+                )
+
+            }
+
+            else if (this.props.display == "collection") {
                 return (
                     <div style={{position: "relative"}}>
                     

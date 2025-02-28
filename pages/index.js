@@ -8,6 +8,7 @@ import Home from "../components/home"
 import Train from "../components/train"
 import Quest from "../components/quest"
 import Craft from "../components/craft"
+import Leaderboards from "../components/leaderboards"
 
 
 import { useWallet } from '@txnlab/use-wallet'
@@ -53,6 +54,12 @@ export default function Index(props) {
 
                 {page == "CRAFT" ? 
                <Craft sendDiscordMessage={props.sendDiscordMessage} mode={mode} />
+                :
+                null
+                }
+
+                {page == "LEADERBOARDS" ? 
+               <Leaderboards sendDiscordMessage={props.sendDiscordMessage} mode={mode} />
                 :
                 null
                 }
