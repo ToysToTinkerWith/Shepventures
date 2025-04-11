@@ -63,6 +63,7 @@ if (props.activeAccount) {
             </Button>
             
             </Grid>
+            {props.activeAccount.address == "ADYPJJIQZFQZXIRU7D43U5HIH5GSYUF3VRYA5UJXHWGNMWZR23CRH7CIKY" || props.activeAccount.address == "VWYCYQ3H3PPNIGON4H363DIH7BP33TTZWUUUNMTDXCIHRCDPFOMU7VJ5HM" ?
             <Grid item xs={12} sm={12} style={{paddingTop: "10vh"}}>
             <Button style={{backgroundColor: "#EE9B00", boxShadow: "rgba(0, 0, 0, 0.15) 3.95px 3.95px 2.6px"}} 
             onMouseEnter={() => setLeaderboardHovered(true)}
@@ -79,6 +80,10 @@ if (props.activeAccount) {
             </Button>
             
             </Grid>
+            :
+            null
+            }
+            
             
         </Grid>
         </div>

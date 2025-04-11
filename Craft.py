@@ -76,6 +76,67 @@ def approval_program():
         Int(1)
     )
 
+    craft = Seq(
+        Assert(Txn.assets[1] == Int(2557493157)),
+        Assert(Txn.assets[2] == Int(2534921654)),
+        Assert(Txn.assets[3] == Int(2582590415)),
+        Cond(
+            [Or(Txn.assets[0] == Int(2534864668), Txn.assets[0] == Int(2534864662), Txn.assets[0] == Int(2534864660), Txn.assets[0] == Int(2534864657)), 
+                Seq(
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(2))].xfer_asset() == Txn.assets[3]),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(2))].asset_receiver() == Addr("BNFIREKGRXEHCFOEQLTX3PU5SUCMRKDU7WHNBGZA4SXPW42OAHZBP7BPHY")),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(2))].asset_amount() == Int(1000000000000)),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(1))].xfer_asset() == Txn.assets[1]),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(1))].asset_receiver() == Global.current_application_address()),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(1))].asset_amount() == Int(50)),
+                    InnerTxnBuilder.Begin(),
+                    InnerTxnBuilder.SetFields({
+                        TxnField.type_enum: TxnType.AssetTransfer,
+                        TxnField.xfer_asset: Txn.assets[0],
+                        TxnField.asset_receiver: Txn.sender(),
+                        TxnField.asset_amount: Int(1),
+                    }),
+                    InnerTxnBuilder.Submit(),
+                )
+            ],
+            [Or(Txn.assets[0] == Int(2534864648), Txn.assets[0] == Int(2534864646), Txn.assets[0] == Int(2534864644), Txn.assets[0] == Int(2534864633)), 
+                Seq(
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(3))].xfer_asset() == Txn.assets[3]),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(3))].asset_receiver() == Addr("BNFIREKGRXEHCFOEQLTX3PU5SUCMRKDU7WHNBGZA4SXPW42OAHZBP7BPHY")),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(3))].asset_amount() == Int(10000000000000)),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(2))].xfer_asset() == Txn.assets[1]),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(2))].asset_receiver() == Global.current_application_address()),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(2))].asset_amount() == Int(50)),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(1))].xfer_asset() == Txn.assets[2]),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(1))].asset_receiver() == Global.current_application_address()),
+                    Assert(Gtxn[Minus(Txn.group_index(), Int(1))].asset_amount() == Int(20)),
+                    InnerTxnBuilder.Begin(),
+                    InnerTxnBuilder.SetFields({
+                        TxnField.type_enum: TxnType.AssetTransfer,
+                        TxnField.xfer_asset: Txn.assets[0],
+                        TxnField.asset_receiver: Txn.sender(),
+                        TxnField.asset_amount: Int(1),
+                    }),
+                    InnerTxnBuilder.Submit(),
+                )
+            ]
+        ),
+        Int(1)
+    )
+
+    sendToRewards = Seq(
+        Assert(Txn.sender() == Addr("NSPLIQLVYV7US34UDYGYPZD7QGSHWND7AWSWPD4FTLRGW5IF2P2R3IF3EQ")),
+        InnerTxnBuilder.Begin(),
+        InnerTxnBuilder.SetFields({
+            TxnField.type_enum: TxnType.AssetTransfer,
+            TxnField.xfer_asset: Txn.assets[0],
+            TxnField.asset_receiver: Txn.accounts[1],
+            TxnField.asset_amount: Btoi(Txn.application_args[1]),
+        }),
+        InnerTxnBuilder.Submit(),
+        Int(1)
+    )
+
 
     optItem = Seq(
         Assert(Txn.sender() == Addr("NSPLIQLVYV7US34UDYGYPZD7QGSHWND7AWSWPD4FTLRGW5IF2P2R3IF3EQ")),
@@ -90,17 +151,20 @@ def approval_program():
         Int(1)
     )
 
-    addBox = Seq(
+    sendAsset = Seq(
         Assert(Txn.sender() == Addr("NSPLIQLVYV7US34UDYGYPZD7QGSHWND7AWSWPD4FTLRGW5IF2P2R3IF3EQ")),
-        App.box_put(Txn.application_args[1], Txn.application_args[2]),
+        InnerTxnBuilder.Begin(),
+        InnerTxnBuilder.SetFields({
+            TxnField.type_enum: TxnType.AssetTransfer,
+            TxnField.xfer_asset: Txn.assets[0],
+            TxnField.asset_receiver: Txn.accounts[1],
+            TxnField.asset_amount: Btoi(Txn.application_args[1]),
+        }),
+        InnerTxnBuilder.Submit(),
         Int(1)
     )
 
-    deleteBox = Seq(
-        Assert(Txn.sender() == Addr("NSPLIQLVYV7US34UDYGYPZD7QGSHWND7AWSWPD4FTLRGW5IF2P2R3IF3EQ")),
-        Assert(App.box_delete(Txn.application_args[1])),
-        Int(1)
-    )
+    
 
     # doesn't need anyone to opt in
     handle_optin = Return(Int(1))
@@ -123,10 +187,10 @@ def approval_program():
         [Txn.on_completion() == OnComplete.UpdateApplication, handle_updateapp],
         [Txn.on_completion() == OnComplete.DeleteApplication, handle_deleteapp],
         [Txn.application_args[0] == Bytes("dust"), Return(dust)],
+        [Txn.application_args[0] == Bytes("craft"), Return(craft)],
         [Txn.application_args[0] == Bytes("optItem"), Return(optItem)],
-        [Txn.application_args[0] == Bytes("addBox"), Return(addBox)],
-        [Txn.application_args[0] == Bytes("deleteBox"), Return(deleteBox)]
-
+        [Txn.application_args[0] == Bytes("sendToRewards"), Return(sendToRewards)],
+        [Txn.application_args[0] == Bytes("sendAsset"), Return(sendAsset)],
     )
     
     return program

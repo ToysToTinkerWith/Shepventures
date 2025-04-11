@@ -239,7 +239,7 @@ export default function Craft(props) {
                 }
                 
               }
-              if (asset.index >= 2534864633) {
+              if (asset.index >= 2534864633 && asset.index < 2874981817) {
                 console.log(asset)
                 if (asset.params.total == 100) {
                   craftables.push({assetId: asset.index, rarity: "T1"})

@@ -207,7 +207,7 @@ export default function Train(props) {
 
             let accountBoxPlace = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("place"))])
             let accountBoxTime = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("time"))])
-            let accountBoxXp = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xp"))])
+            let accountBoxXp = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xpS2"))])
             let accountBoxShep = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("stats"))])
 
 

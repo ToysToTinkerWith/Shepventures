@@ -81,12 +81,12 @@ export default function DisplayItem(props) {
                         console.log(ocid.toString())
     
     
-                        fetch("https://gateway.pinata.cloud/ipfs/" + ocid.toString(), {
+                        fetch("https://ipfs.dark-coin.io/ipfs/" + ocid.toString(), {
                             method: 'get'
                         }).then(async (response) => {
                             let data = await response.json()
                             
-                                setNftUrl("https://ipfs.algonode.dev/ipfs/" + data.image.slice(7))
+                                setNftUrl("https://ipfs.dark-coin.io/ipfs/" + data.image.slice(7))
                             
     
                         }).catch(function(err) {
@@ -100,8 +100,11 @@ export default function DisplayItem(props) {
                     else if (props.nftId == 2582590415) {
                         setNftUrl("meep.png")
                     }
+                    else if (props.nftId == 2874981985) {
+                        setNftUrl("https://ipfs.dark-coin.io/ipfs/" + session.assets[0].params.url.slice(12))
+                    }
                     else {
-                        setNftUrl("https://ipfs.algonode.dev/ipfs/" + session.assets[0].params.url.slice(7))
+                        setNftUrl("https://ipfs.dark-coin.io/ipfs/" + session.assets[0].params.url.slice(7))
 
                     }
 

@@ -8,6 +8,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import DisplayItem from "./displayItem";
 
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+
+
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 10,
@@ -37,6 +40,8 @@ export default class DisplayShep extends React.Component {
         this.state = {
             display: false,
             nft: null,
+            nfd: null,
+            nftAddress: null,
             nftUrl: null,
             message: "",
             contract: 2254344958,
@@ -99,8 +104,9 @@ export default class DisplayShep extends React.Component {
     
             this.setState({
                 nft: session.assets[0].params,
-                nftUrl: "https://ipfs.algonode.dev/ipfs/" + session.assets[0].params.url.slice(7),
+                nftUrl: "https://ipfs.dark-coin.io/ipfs/" + session.assets[0].params.url.slice(7),
             })
+
         
             const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
 
@@ -108,9 +114,53 @@ export default class DisplayShep extends React.Component {
 
             let status = await client.status().do();
 
+            const round = status['last-round'];
+    
+            const blockInfo = await client.block(round).do();
+            const timestamp = blockInfo.block.ts;
+
             this.setState({
-                round: status["last-round"]
+                roundTime: timestamp,
+                round: round
             })
+
+            const assetBalances = await indexerClient.lookupAssetBalances(this.props.nftId).do();
+
+            assetBalances.balances.forEach(async (balance) => {
+                if (balance.amount == 1) {
+                    this.setState({
+                        nftAddress: balance.address
+                    })
+                    const url = 'https://api.nf.domains/nfd/lookup?address=' + balance.address;
+            
+                    try {
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {},
+                        });
+            
+                        if (!response.ok) {  // Check if the response was successful
+                            return;  // Exit the function if response is not OK
+                        }
+            
+                        const text = await response.text();  // First get the response as text
+            
+                        try {
+                            const data = JSON.parse(text);  // Try parsing the text as JSON
+            
+                            if (data && data[balance.address]) {  // Check if data is valid and contains expected key
+                                this.setState({
+                                    nfd: data[balance.address].name  // Update state with the name
+                                });
+                            } else {
+                            }
+                        } catch (error) {
+                        }
+                    } catch (error) {
+                    }
+                }
+            });       
+
 
             let assetBox = algosdk.encodeUint64(this.props.nftId)
 
@@ -139,7 +189,7 @@ export default class DisplayShep extends React.Component {
 
                 }
                 try {
-                    let accountBoxXp = await client.getApplicationBoxByName(this.state.contract, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xp"))])).do();
+                    let accountBoxXp = await client.getApplicationBoxByName(this.state.contract, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xpS2"))])).do();
                     var length = accountBoxXp.value.length;
             
                     let xpbuffer = Buffer.from(accountBoxXp.value);
@@ -174,10 +224,10 @@ export default class DisplayShep extends React.Component {
                     let boots = byteArrayToLong(accountItems.value.slice(16,24))
                     let extra = byteArrayToLong(accountItems.value.slice(24,32))
 
-                    let commonsBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("commons"))).do();
-                    let uncommonsBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("uncommons"))).do();
-                    let raresBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("rares"))).do();
-                    let legendarysBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("legendarys"))).do();
+                    let commonsBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("commonsS2"))).do();
+                    let uncommonsBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("uncommonsS2"))).do();
+                    let raresBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("raresS2"))).do();
+                    let legendarysBox = await client.getApplicationBoxByName(this.state.contract, new Uint8Array(Buffer.from("legendarysS2"))).do();
 
 
 
@@ -229,7 +279,7 @@ export default class DisplayShep extends React.Component {
                    
                     }
                     catch(error) {
-                        console.log(error)
+                        
                     }
     
                 
@@ -312,7 +362,7 @@ export default class DisplayShep extends React.Component {
         
                 this.setState({
                     nft: session.assets[0].params,
-                    nftUrl: "https://ipfs.algonode.dev/ipfs/" + session.assets[0].params.url.slice(7),
+                    nftUrl: "https://ipfs.dark-coin.io/ipfs/" + session.assets[0].params.url.slice(7),
                 })
             
                 const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
@@ -353,7 +403,7 @@ export default class DisplayShep extends React.Component {
     
                     }
     
-                    let accountBoxXp = await client.getApplicationBoxByName(this.state.contract, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xp"))])).do();
+                    let accountBoxXp = await client.getApplicationBoxByName(this.state.contract, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xpS2"))])).do();
                     var length = accountBoxXp.value.length;
             
                     let xpbuffer = Buffer.from(accountBoxXp.value);
@@ -534,7 +584,7 @@ export default class DisplayShep extends React.Component {
 
                 }
 
-                let accountBoxXp = await client.getApplicationBoxByName(this.state.contract, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xp"))])).do();
+                let accountBoxXp = await client.getApplicationBoxByName(this.state.contract, new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xpS2"))])).do();
                 var length = accountBoxXp.value.length;
         
                 let xpbuffer = Buffer.from(accountBoxXp.value);
@@ -608,11 +658,24 @@ export default class DisplayShep extends React.Component {
         let nextLvl = 100
         let prevLvl = 0
 
-        while (this.state.xp > nextLvl) {
-            prevLvl = nextLvl
-            nextLvl = nextLvl + (200 * level) + 100
-            level++
+        if (this.props.place == "leaderboardXp") {
+            
+            while (this.props.shepXp > nextLvl) {
+                prevLvl = nextLvl
+                nextLvl = nextLvl + (200 * level) + 100
+                level++
+            }
+
         }
+        else {
+            while (this.state.xp > nextLvl) {
+                prevLvl = nextLvl
+                nextLvl = nextLvl + (200 * level) + 100
+                level++
+            }
+        }
+
+        
         
         let sel = false
         if (this.props.place == "train") {
@@ -646,8 +709,6 @@ export default class DisplayShep extends React.Component {
         xp = xp + Math.floor(level / 10)
         speed = speed + Math.floor(level / 5)
         speed = speed + Math.floor(level / 10)
-
-        console.log(this.state.result)
         
 
         if (this.state.nft && this.state.display) {
@@ -658,15 +719,121 @@ export default class DisplayShep extends React.Component {
 
                     <div style={{position: "relative", backgroundColor: this.props.mode == "light" ? "#94D2BD" : "#005F73", borderRadius: 25, height: "100%"}}>
                         
-                            <div style={{display: "grid", borderRadius: 15}}  >
+                            <div style={{display: "grid", borderRadius: 15}}>
+                                {this.props.index == 0 ?
+                                <EmojiEventsIcon style={{position: "absolute", right: 20, top: 20, fontFamily: "LondrinaSolid", color: "#FFB339"}} />
+                                :
+                                null
+                                }
+                                {this.props.index == 1 ?
+                                <EmojiEventsIcon style={{position: "absolute", right: 20, top: 20, fontFamily: "LondrinaSolid", color: "#818181"}} />
+                                :
+                                null
+                                }
+                                {this.props.index == 2 ?
+                                <EmojiEventsIcon style={{position: "absolute", right: 20, top: 20, fontFamily: "LondrinaSolid", color: "#C47900"}} />
+                                :
+                                null
+                                }
+
                                 <img style={{width: "100%", borderRadius: 25, padding: 10, paddingBottom: 10}} src={this.state.nftUrl} /> 
-                                <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nft.name} </Typography>     
+                                <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nft.name} </Typography>
+                                {this.state.nfd ? 
+                                    <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nfd} </Typography>     
+                                    :
+                                    <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nftAddress.substring(0, 10)} </Typography>     
+                                }
+     
                             </div>
                         
-                        <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.xp - prevLvl) / (nextLvl - prevLvl)) * 100} />
-                        <Typography align="center" variant="caption" style={{fontFamily: "LondrinaSolid", display: "grid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.xp} / {nextLvl} </Typography>
+                        <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.props.shepXp - prevLvl) / (nextLvl - prevLvl)) * 100} />
+                        <Typography align="center" variant="caption" style={{fontFamily: "LondrinaSolid", display: "grid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.props.shepXp} / {nextLvl} </Typography>
 
                         <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", display: "grid", margin: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Level {level} </Typography>
+
+                    </div>
+                )
+
+            }
+
+            else if (this.props.place == "leaderboardItems") {
+
+                return (
+
+                    <div style={{position: "relative", backgroundColor: this.props.mode == "light" ? "#94D2BD" : "#005F73", borderRadius: 25, height: "100%"}}>
+                        
+                            <div style={{display: "grid", borderRadius: 15}}>
+                                {this.props.index == 0 ?
+                                <EmojiEventsIcon style={{position: "absolute", right: 20, top: 20, fontFamily: "LondrinaSolid", color: "#FFB339"}} />
+                                :
+                                null
+                                }
+                                {this.props.index == 1 ?
+                                <EmojiEventsIcon style={{position: "absolute", right: 20, top: 20, fontFamily: "LondrinaSolid", color: "#818181"}} />
+                                :
+                                null
+                                }
+                                {this.props.index == 2 ?
+                                <EmojiEventsIcon style={{position: "absolute", right: 20, top: 20, fontFamily: "LondrinaSolid", color: "#C47900"}} />
+                                :
+                                null
+                                }
+
+                                <img style={{width: "100%", borderRadius: 25, padding: 10, paddingBottom: 10}} src={this.state.nftUrl} /> 
+                                <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nft.name} </Typography>
+                                {this.state.nfd ? 
+                                    <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nfd} </Typography>     
+                                    :
+                                    <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {this.state.nftAddress.substring(0, 10)} </Typography>     
+                                }
+                            </div>
+
+                        <Grid container justifyContent="space-between" spacing={2}>
+                                <Grid item xs={6} style={{margin: 10, width: "100%", margin: "auto"}}>
+                                    <Button onClick={() => this.setState({cat: "weapon"})} style={{height: "25%", width: "100%", marginBottom: 10, marginTop: 10}}>
+                                    {this.state.weapon ? 
+                                    <DisplayItem cat={"weapon"} setAdjust={(survival, power, speed, XP, hover) => this.setState({adjustments: {survival: survival, power: power, speed: speed, XP: XP, hover: hover}})} nftId={this.state.weapon} type={"display"} shep={this.props.nftId} contract={this.state.weaponContract} sendDiscordMessage={this.props.sendDiscordMessage}/>
+                                    :
+                                    <img style={{width: "70%"}} src={"./icons/Weapon.svg"} /> 
+                                    }
+                                    
+                                    </Button>
+                                    </Grid>
+                                    <Grid item xs={6} style={{margin: 10, width: "100%", margin: "auto"}}>
+
+                                    <Button onClick={() => this.setState({cat: "armour"})} style={{height: "25%", width: "100%", marginBottom: 10, marginTop: 10}}>
+                                    {this.state.armour ? 
+                                    <DisplayItem cat={"armour"} setAdjust={(survival, power, speed, XP, hover) => this.setState({adjustments: {survival: survival, power: power, speed: speed, XP: XP, hover: hover}})} nftId={this.state.armour} type={"display"} shep={this.props.nftId} contract={this.state.weaponContract} sendDiscordMessage={this.props.sendDiscordMessage}/>
+                                    :
+                                    <img style={{width: "70%"}} src={"./icons/Armour.svg"} /> 
+                                    }
+                                    </Button>
+                                    </Grid>
+                                    <Grid item xs={6} style={{margin: 10, width: "100%", margin: "auto"}}>
+
+                                    <Button onClick={() => this.setState({cat: "boots"})} style={{height: "25%", width: "100%", marginBottom: 10, marginTop: 10}}>
+                                    {this.state.boots ? 
+                                    <DisplayItem cat={"boots"} setAdjust={(survival, power, speed, XP, hover) => this.setState({adjustments: {survival: survival, power: power, speed: speed, XP: XP, hover: hover}})} nftId={this.state.boots} type={"display"} shep={this.props.nftId} contract={this.state.weaponContract} sendDiscordMessage={this.props.sendDiscordMessage}/>
+                                    :
+                                    <img style={{width: "70%"}} src={"./icons/Boots.svg"} /> 
+                                    }
+                                    </Button>
+                                    </Grid>
+                                    <Grid item xs={6} style={{margin: 10, width: "100%", margin: "auto"}}>
+
+                                    <Button onClick={() => this.setState({cat: "extra"})} style={{height: "25%", width: "100%", marginBottom: 10, marginTop: 10}}>
+                                    {this.state.extra ? 
+                                    <DisplayItem cat={"extra"} setAdjust={(survival, power, speed, XP, hover) => this.setState({adjustments: {survival: survival, power: power, speed: speed, XP: XP, hover: hover}})} nftId={this.state.extra} type={"display"} shep={this.props.nftId} contract={this.state.weaponContract} sendDiscordMessage={this.props.sendDiscordMessage}/>
+                                    :
+                                    <img style={{width: "70%"}} src={"./icons/Extra.svg"} /> 
+                                    }
+                                    </Button>
+                                    </Grid>
+                                </Grid>
+
+                                <Typography align="center" variant="h6" style={{fontFamily: "LondrinaSolid", padding: 5, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Item Score = {this.props.itemScore} </Typography>
+                                <br />
+
 
                     </div>
                 )
@@ -811,11 +978,7 @@ export default class DisplayShep extends React.Component {
                             null
                             }
 
-                            {this.state.place == "ocean" ?
-                            <img style={{position: "absolute", width: 50, top: 20, right: 20}} src={"Quest.svg"} /> 
-                            :
-                            null
-                            }
+        
                             
 
                                 
@@ -947,6 +1110,21 @@ export default class DisplayShep extends React.Component {
                           :
                           this.props.selShep ?
                           <div style={{}}>
+                            <Grid container>
+                                <Grid ite xs={12} sm={3}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survival Roll {survival + this.state.survival < 0 ? "-" : "+"}{(survival + this.state.survival) * 2}% </Typography>     
+                                </Grid>
+                                <Grid ite xs={12} sm={3}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Power Roll {power + this.state.power < 0 ? "-" : "+"}{(power + this.state.power) * 2}% </Typography>     
+                                </Grid>
+                                <Grid ite xs={12} sm={3}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> XP {xp + this.state.XP < 0 ? "-" : "+"}{(xp + this.state.XP) * 2}% </Typography>     
+                                </Grid>
+                                <Grid ite xs={12} sm={3}>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Speed {speed + this.state.speed < 0 ? "-" : "+"}{speed + this.state.speed}% </Typography>     
+                                </Grid>
+                            </Grid>
+
                           <Button style={{display: "block"}} onClick={() => this.setState({viewRewards: !this.state.viewRewards})}>
                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Rewards Pool </Typography>     
                           </Button>
@@ -979,42 +1157,69 @@ export default class DisplayShep extends React.Component {
                           </Grid>
                           :
                           null}
+
+                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Shep XP 1/2 on death </Typography>     
+
                             <Grid container>
-                                <Grid item xs={12} sm={6}>
-                                    <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "ocean")}>
+                                <Grid item xs={12} sm={12} md={6}>
+                                    <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "jump")}>
                                         <div style={{backgroundColor:  this.props.mode == "light" ? "#EE9B00" : "#9B2226", padding: 10, position: "absolute", top: 20, right: 20, borderRadius: 15}}>
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Ocean </Typography>
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {(90 + ((this.state.survival + survival) * 2)) > 100 ? "100" : String(90 + ((this.state.survival + survival) * 2))}% Survival </Typography>
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> {(75 - ((this.state.power + power) * 2)) < 0 ? "0%" : String(75 - ((this.state.power + power) * 2))}% </Typography>     
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> {(75 - ((this.state.power + power) * 2)) < 0 ? "100%" : String(25 + ((this.state.power + power) * 2))}% </Typography>     
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {String(200 + ((this.state.XP + xp) * 4))} xp </Typography>
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {String((2 - (2 * ((this.state.speed + speed) / 100))).toFixed(2))} days </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Long Jump </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 50% Survival </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 70% <br /> 6,942,069  </Typography>     
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 25% <br /> 42,069,420 </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 5% <br /> 250m </Typography>     
+
+                                        <img src={"meep.png"} style={{width: 50}} /> 
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 200 xp </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 2 days </Typography>
 
 
     
     
                                         </div>
-                                        <img src={"quests/Ocean.jpg"} style={{width: "100%", borderRadius: 15}} />
+                                        <img src={"quests/Jump.png"} style={{width: "100%", borderRadius: 15}} />
                                     </Button>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6}>
-                                <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "temple")}>
+                                    <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "footie")}>
+                                        <div style={{backgroundColor:  this.props.mode == "light" ? "#EE9B00" : "#9B2226", padding: 10, position: "absolute", top: 20, right: 20, borderRadius: 15, zIndex: 3}}>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Footie </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 70% Survival </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 50% </Typography>     
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 40% </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 10% </Typography>     
+  
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 360 xp </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 3 days </Typography>
+
+
+    
+    
+                                        </div>
+                                        <img src={"quests/footieLight.png"} style={{width: "100%", borderRadius: 15}} />
+
+                                    </Button>
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "marathon")}>
                                     <div style={{backgroundColor:  this.props.mode == "light" ? "#EE9B00" : "#9B2226", padding: 10, position: "absolute", top: 20, right: 20, borderRadius: 15}}>
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Temple </Typography>
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {(40 + ((this.state.survival + survival) * 2)) > 100 ? "100" : String(40 + ((this.state.survival + survival) * 2))}% Survival </Typography>
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> {(50 - ((this.state.power + power) * 1.5)) < 0 ? "0%" : String(50 - ((this.state.power + power) * 1.5))}% </Typography>     
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> {(40 + ((this.state.power + power) * 0.5)) < 0 ? "100%" : String(40 + ((this.state.power + power) * 0.5))}% </Typography>
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> {(10 + ((this.state.power + power) * 0.5)) < 0 ? "100%" : String(10 + ((this.state.power + power) * 0.5))}% </Typography>     
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#FF6A00", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> {(0 + ((this.state.power + power) * 0.5)) < 0 ? "100%" : String(0 + ((this.state.power + power) * 0.5))}% </Typography>          
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {String(Math.floor(525 + ((this.state.XP + xp) * 10.5)))} xp </Typography>
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> {String((5 - (5 * ((this.state.speed + speed) / 100))).toFixed(2))} days </Typography>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Marathon </Typography>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 80% Survival </Typography>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 20% </Typography>     
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 40% </Typography>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 35% </Typography>     
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#FF6A00", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 5% </Typography>          
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 1500 xp </Typography>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 10 days </Typography>
 
 
 
 
                                     </div>
-                                    <img src={"quests/Temple.png"} style={{width: "100%", borderRadius: 15}} />
+                                    <img src={"quests/Marathon.png"} style={{width: "100%", borderRadius: 15}} />
                                 </Button>
                             </Grid>
                         
@@ -1103,15 +1308,15 @@ export default class DisplayShep extends React.Component {
                                             
 
 
-                                            {!this.state.result && this.state.place == "ocean" && ((this.state.round - this.state.time) / (60000 - (60000 * ((this.state.speed + speed) / 100)))) < 1 ?
+                                            {!this.state.result && this.state.place == "jump" && ((this.state.roundTime - this.state.time) / (172800 - (172800 * ((this.state.speed + speed) / 100)))) < 1 ?
                                                 <div style={{margin: 20}}>
                                                     <img src={"runshep.gif"} style={{width: 100, borderRadius: 15}}/>
-                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Ocean </Typography>   
-                                                    <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.round - this.state.time) / (60000 - (60000 * ((this.state.speed + speed) / 100)))) * 100} />
-                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Time left: {secondsToDhms(((2 - (2 * ((this.state.speed + speed) / 100))) - (((this.state.round - this.state.time) / (60000 - (60000 * ((this.state.speed + speed) / 100)))) * (2 - (2 * ((this.state.speed + speed) / 100))))) * 24 * 60 * 60)} </Typography>   
+                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Long Jump </Typography>   
+                                                    <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.roundTime - this.state.time) / (172800 - (172800 * ((this.state.speed + speed) / 100)))) * 100} />
+                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Time left: {secondsToDhms((172800 - (172800 * ((this.state.speed + speed) / 100))) - (this.state.roundTime - this.state.time))} </Typography>   
                                                 </div>
                                                 :
-                                                !this.state.result && this.state.place == "ocean" ?
+                                                !this.state.result && this.state.place == "jump" ?
                                                 <Button variant="contained" disabled={this.state.place == ""}
                                                 style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
                                                 onClick={() => this.props.roll(this.props.nftId)}
@@ -1122,15 +1327,34 @@ export default class DisplayShep extends React.Component {
                                                 null
                                             }
 
-                                            {!this.state.result && this.state.place == "temple" && ((this.state.round - this.state.time) / (150000 - (150000 * ((this.state.speed + speed) / 100)))) < 1 ?
+                                            {!this.state.result && this.state.place == "footie" && ((this.state.roundTime - this.state.time) / (259200 - (259200 * ((this.state.speed + speed) / 100)))) < 1 ?
                                                 <div style={{margin: 20}}>
                                                     <img src={"runshep.gif"} style={{width: 100, borderRadius: 15}}/>
-                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Temple </Typography>   
-                                                    <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.round - this.state.time) / (150000 - (150000 * ((this.state.speed + speed) / 100)))) * 100} />
-                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Time left: {secondsToDhms(((5 - (5 * ((this.state.speed + speed) / 100))) - (((this.state.round - this.state.time) / (150000 - (150000 * ((this.state.speed + speed) / 100)))) * (5 - (5 * ((this.state.speed + speed) / 100))))) * 24 * 60 * 60)} </Typography>   
+                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Footie</Typography>   
+                                                    <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.roundTime - this.state.time) / (259200 - (259200 * ((this.state.speed + speed) / 100)))) * 100} />
+                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Time left: {secondsToDhms((259200 - (259200 * ((this.state.speed + speed) / 100))) - (this.state.roundTime - this.state.time))} </Typography>   
                                                 </div>
                                                 :
-                                                !this.state.result && this.state.place == "temple" ?
+                                                !this.state.result && this.state.place == "footie" ?
+                                                <Button variant="contained" disabled={this.state.place == ""}
+                                                style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                onClick={() => this.props.roll(this.props.nftId)}
+                                                >
+                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Roll </Typography>     
+                                                </Button>
+                                                :
+                                                null
+                                            }
+
+                                            {!this.state.result && this.state.place == "marathon" && ((this.state.roundTime - this.state.time) / (864000 - (864000 * ((this.state.speed + speed) / 100)))) < 1 ?
+                                                <div style={{margin: 20}}>
+                                                    <img src={"runshep.gif"} style={{width: 100, borderRadius: 15}}/>
+                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Marathon </Typography>   
+                                                    <BorderLinearProgress variant="determinate" style={{marginRight: 10, marginLeft: 10}} value={((this.state.roundTime - this.state.time) / (864000 - (864000 * ((this.state.speed + speed) / 100)))) * 100} />
+                                                    <Typography color="secondary" align="right" variant="subtitle1" style={{fontFamily: "LondrinaSolid", paddingLeft: 10, color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Time left: {secondsToDhms((864000 - (864000 * ((this.state.speed + speed) / 100))) - (this.state.roundTime - this.state.time))} </Typography>   
+                                                </div>
+                                                :
+                                                !this.state.result && this.state.place == "marathon" ?
                                                 <Button variant="contained" disabled={this.state.place == ""}
                                                 style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
                                                 onClick={() => this.props.roll(this.props.nftId)}
@@ -1143,112 +1367,242 @@ export default class DisplayShep extends React.Component {
 
                                             {this.state.result ?
                                             <div>
-                                                {this.state.place == "ocean" ?
+                                                {this.state.place == "jump" ?
                                                 <div>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survive? (Roll d200) </Typography>
-                                                    {(200 - this.state.result.survivalRoll) >= (200 - this.state.result.surThresh) ?
-                                                    <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(200 - this.state.result.survivalRoll) + " >= " + String(200 - this.state.result.surThresh)}</Typography>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.survivalRoll} </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.survivalRoll * ((this.state.survival + survival) / 50)) + this.state.result.survivalRoll)} </Typography>
 
-                                                        {(200 - this.state.result.survivalRoll) >= (200 - this.state.result.surThresh) ?
+                                                    {(this.state.result.surThresh) >= 100 ?
+                                                    <div>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(100)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
+                                                        <br />
                                                         <div>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward? (Roll d100)</Typography>
-                                                            {(100 - this.state.result.powerRoll) >= (100 - this.state.result.powerThresh) ?
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward (Roll d1000)</Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.powerRoll} </Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.powerRoll * ((this.state.power + power) / 50)) + this.state.result.powerRoll)} </Typography>
+                                                            {this.state.result.powerThresh >= 950  ?
+                                                                <div>
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> Rare</Typography>
+                                                                    <br />
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 250m MEEP</Typography>
+                                                                
+                                                                </div>
+                                                            :
+                                                            null
+                                                            }
+
+                                                            {this.state.result.powerThresh < 950 && this.state.result.powerThresh >= 700 ?
                                                             <div>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> {String(100 - this.state.result.powerRoll) + " >= " + String(100 - this.state.result.powerThresh)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> {String(this.state.result.powerThresh)}</Typography>
                                                                 <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> Uncommon</Typography>
+                                                                <br />
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 42,069,420 MEEP</Typography>
                                                                     
                                                             </div>
                                                             :
-                                                            <div>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(100 - this.state.result.powerRoll) + " < " + String(100 - this.state.result.powerThresh)}</Typography>     
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Common</Typography>     
-
-                                                            </div>
+                                                            null
                                                             }
+
+                                                            {this.state.result.powerThresh < 700 ?
+                                                            <div>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Common</Typography>
+                                                                <br />
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 6,942,069 MEEP</Typography>
+
+                                                                    
+                                                            </div>
+                                                            :
+                                                            null
+                                                            }
+                                                            <img src={"meep.png"} style={{width: 50}} />
+                                                            <Button variant="contained" disabled={this.state.place == ""}
+                                                            style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                            onClick={() => this.props.reward(this.props.nftId, this.state.place)}
+                                                            >
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Claim </Typography>     
+                                                            </Button>
                                                         </div>
-                                                        :
-                                                        <div>
-                                                            <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        }  
+                                                        
                                                     </div>
                                                     :
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(200 - this.state.result.survivalRoll) + " < " + String(200 - this.state.result.surThresh)}</Typography>     
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(100)}</Typography>
+                                                        <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
+                                                        <Button variant="contained" disabled={this.state.place == ""}
+                                                            style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                            onClick={() => this.props.reward(this.props.nftId, this.state.place)}
+                                                            >
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Return </Typography>     
+                                                        </Button>
                                                     </div>
                                                     }    
                                                 </div>
                                                 :
                                                 null
                                                 }
-                                                {this.state.place == "temple" ?
+                                                {this.state.place == "footie" ?
                                                 <div>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survive? (Roll d200) </Typography>
-                                                    {(200 - this.state.result.survivalRoll) >= (200 - this.state.result.surThresh) ?
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.survivalRoll} </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.survivalRoll * ((this.state.survival + survival) / 50)) + this.state.result.survivalRoll)} </Typography>
+
+                                                    {(this.state.result.surThresh) >= 60 ?
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(200 - this.state.result.survivalRoll) + " >= " + String(200 - this.state.result.surThresh)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(60)}</Typography>
                                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
-
-                                                        {(200 - this.state.result.survivalRoll) >= (200 - this.state.result.surThresh) ?
+                                                        <br />
                                                         <div>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward? (Roll d1000)</Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#FF6A00"}}> {"1000 - " + String(2000 - this.state.result.powerThresh + 1)}</Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(2000 - this.state.result.powerThresh) + " - " + String(1900 - this.state.result.powerThresh - (this.state.result.powerThresh - 1000) + 1)}</Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> {String(1900 - this.state.result.powerThresh - (this.state.result.powerThresh - 1000)) + " - " + String(1500 - this.state.result.powerThresh - (2 * this.state.result.powerThresh - 2000) + 1)}</Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(1500 - this.state.result.powerThresh - (2 * this.state.result.powerThresh - 2000)) + " - 1"}</Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward (Roll d1000)</Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.powerRoll} </Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.powerRoll * ((this.state.power + power) / 50)) + this.state.result.powerRoll)} </Typography>
+                                                            {this.state.result.powerThresh >= 900  ?
+                                                                <div>
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> Rare</Typography>
+                                                                    <img src={"T3 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
 
-                                                            {(1000 - this.state.result.powerRoll) >= (2000 - this.state.result.powerThresh + 1)  ?
-                                                            <div>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#FF6A00"}}> {String(1000 - this.state.result.powerRoll)}</Typography>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#FF6A00"}}> Legendary</Typography>
-                                                                    
-                                                            </div>
+                                                                
+                                                                </div>
                                                             :
                                                             null
                                                             }
 
-                                                            {(1000 - this.state.result.powerRoll) <= (2000 - this.state.result.powerThresh) && (1000 - this.state.result.powerRoll) >= (1900 - this.state.result.powerThresh - (this.state.result.powerThresh - 1000) + 1) ?
+                                                            {this.state.result.powerThresh < 900 && this.state.result.powerThresh >= 500 ?
                                                             <div>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(1000 - this.state.result.powerRoll)}</Typography>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> Rare</Typography>
-                                                                    
-                                                            </div>
-                                                            :
-                                                            null
-                                                            }
-
-                                                            {(1000 - this.state.result.powerRoll) <= (1900 - this.state.result.powerThresh - (this.state.result.powerThresh - 1000)) && (1000 - this.state.result.powerRoll) >= (1500 - this.state.result.powerThresh - (2 * this.state.result.powerThresh - 2000) + 1) ?
-                                                            <div>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> {String(1000 - this.state.result.powerRoll)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> {String(this.state.result.powerThresh)}</Typography>
                                                                 <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> Uncommon</Typography>
+                                                                <img src={"T2 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
+
                                                                     
                                                             </div>
                                                             :
                                                             null
                                                             }
 
-                                                            {(1000 - this.state.result.powerRoll) <= (1500 - this.state.result.powerThresh - (2 * this.state.result.powerThresh - 2000)) && (1000 - this.state.result.powerRoll) >= 1 ?
+                                                            {this.state.result.powerThresh < 500 ?
                                                             <div>
-                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(1000 - this.state.result.powerRoll)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.powerThresh)}</Typography>
                                                                 <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Common</Typography>
+                                                                <img src={"T1 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
+
                                                                     
                                                             </div>
                                                             :
                                                             null
                                                             }
-
+                                                            <Button variant="contained" disabled={this.state.place == ""}
+                                                            style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                            onClick={() => this.props.reward(this.props.nftId, this.state.place)}
+                                                            >
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Claim </Typography>     
+                                                            </Button>
                                                         </div>
-                                                        :
-                                                        <div>
-                                                            <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        }  
+                                                        
                                                     </div>
                                                     :
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(200 - this.state.result.survivalRoll) + " < " + String(200 - this.state.result.surThresh)}</Typography>     
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(60)}</Typography>
+                                                        <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
+                                                        <Button variant="contained" disabled={this.state.place == ""}
+                                                            style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                            onClick={() => this.props.reward(this.props.nftId, this.state.place)}
+                                                            >
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Return </Typography>     
+                                                        </Button>
+                                                    </div>
+                                                    }    
+                                                </div>
+                                                :
+                                                null
+                                                }
+
+                                                            
+                                                {this.state.place == "marathon" ?
+                                                <div>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survive? (Roll d200) </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.survivalRoll} </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.survivalRoll * ((this.state.survival + survival) / 50)) + this.state.result.survivalRoll)} </Typography>
+
+                                                    {(this.state.result.surThresh) >= 40 ?
+                                                    <div>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(40)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
+                                                        <br />
+                                                        <div>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward (Roll d1000)</Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.powerRoll} </Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.powerRoll * ((this.state.power + power) / 50)) + this.state.result.powerRoll)} </Typography>
+                                                            
+                                                            {this.state.result.powerThresh >= 950  ?
+                                                                <div>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#FF6A00"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#FF6A00"}}> Legendary</Typography>
+                                                                <img src={"T4 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
+
+                                                                    
+                                                                </div>
+                                                            :
+                                                            null
+                                                            }
+                                                            
+                                                            {this.state.result.powerThresh < 950 && this.state.result.powerThresh >= 600 ?
+                                                                <div>
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> Rare</Typography>
+                                                                    <img src={"T3 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
+
+                                                                
+                                                                </div>
+                                                            :
+                                                            null
+                                                            }
+
+                                                            {this.state.result.powerThresh < 600 && this.state.result.powerThresh >= 200 ?
+                                                            <div>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "blue"}}> Uncommon</Typography>
+                                                                <img src={"T2 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
+
+                                                                    
+                                                            </div>
+                                                            :
+                                                            null
+                                                            }
+
+                                                            {this.state.result.powerThresh < 200 ?
+                                                            <div>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.powerThresh)}</Typography>
+                                                                <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Common</Typography>
+                                                                <img src={"T1 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
+
+                                                                    
+                                                            </div>
+                                                            :
+                                                            null
+                                                            }
+                                                            <Button variant="contained" disabled={this.state.place == ""}
+                                                            style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                            onClick={() => this.props.reward(this.props.nftId, this.state.place)}
+                                                            >
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Claim </Typography>     
+                                                            </Button>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    :
+                                                    <div>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(60)}</Typography>
+                                                        <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
+                                                        <Button variant="contained" disabled={this.state.place == ""}
+                                                            style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
+                                                            onClick={() => this.props.reward(this.props.nftId, this.state.place)}
+                                                            >
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Return </Typography>     
+                                                        </Button>
                                                     </div>
                                                     }    
                                                 </div>
@@ -1259,121 +1613,6 @@ export default class DisplayShep extends React.Component {
                                             :
                                             null
                                             }
-
-                                            
-                                            {this.state.result && !this.state.reward && this.state.place == "ocean" ?
-                                            <div>
-                                                {(200 - this.state.result.survivalRoll) >= (200 - this.state.result.surThresh) ?
-                                                <Grid container>
-                                                    <Grid item xs={6}>
-                                                        {(100 - this.state.result.powerRoll) >= (100 - this.state.result.powerThresh) ?
-                                                        <div>
-                                                            <img src={"T2 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        :
-                                                        <div>
-                                                            <img src={"T1 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        }
-                                                    </Grid>
-                                                    <Grid item xs={6}>
-                                                        <Button variant="contained" disabled={this.state.place == ""}
-                                                        style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
-                                                        onClick={() => this.props.reward(this.props.nftId)}
-                                                        >
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Open </Typography>     
-                                                        </Button>
-                                                    </Grid>
-                                                </Grid>
-                                                :
-                                                <Grid container>
-                                                    <Grid item xs={6}>
-                                                        <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                    </Grid>
-                                                    <Grid item xs={6}>
-                                                        <Button variant="contained" disabled={this.state.place == ""}
-                                                        style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
-                                                        onClick={() => this.props.reward(this.props.nftId)}
-                                                        >
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Return </Typography>     
-                                                        </Button>
-                                                    </Grid>
-                                                    
-                                                </Grid>
-                                                }
-                                            </div>
-                                                :
-                                                null
-                                            }
-
-                                            {this.state.result && !this.state.reward && this.state.place == "temple" ?
-                                            <div>
-                                                {(200 - this.state.result.survivalRoll) >= (200 - this.state.result.surThresh) ?
-                                                <Grid container>
-                                                    <Grid item xs={6}>
-                                                        {(1000 - this.state.result.powerRoll) >= (2000 - this.state.result.powerThresh + 1)  ?
-                                                        <div>
-                                                            <img src={"T4 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        :
-                                                        null
-                                                        }
-
-                                                        {(1000 - this.state.result.powerRoll) <= (2000 - this.state.result.powerThresh) && (1000 - this.state.result.powerRoll) >= (1900 - this.state.result.powerThresh - (this.state.result.powerThresh - 1000) + 1) ?
-                                                        <div>
-                                                            <img src={"T3 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        :
-                                                        null
-                                                        }
-
-                                                        {(1000 - this.state.result.powerRoll) <= (1900 - this.state.result.powerThresh - (this.state.result.powerThresh - 1000)) && (1000 - this.state.result.powerRoll) >= (1500 - this.state.result.powerThresh - (2 * this.state.result.powerThresh - 2000) + 1) ?
-                                                        <div>
-                                                            <img src={"T2 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        :
-                                                        null
-                                                        }
-
-                                                        {(1000 - this.state.result.powerRoll) <= (1500 - this.state.result.powerThresh - (2 * this.state.result.powerThresh - 2000)) && (1000 - this.state.result.powerRoll) >= 1 ?
-                                                        <div>
-                                                            <img src={"T1 Treasure.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                        </div>
-                                                        :
-                                                        null
-                                                        }
-                                                    </Grid>
-                                                    <Grid item xs={6}>
-                                                        <Button variant="contained" disabled={this.state.place == ""}
-                                                        style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
-                                                        onClick={() => this.props.reward(this.props.nftId)}
-                                                        >
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Open </Typography>     
-                                                        </Button>
-                                                    </Grid>
-                                                </Grid>
-                                                :
-                                                <Grid container>
-                                                    <Grid item xs={6}>
-                                                        <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
-                                                    </Grid>
-                                                    <Grid item xs={6}>
-                                                        <Button variant="contained" disabled={this.state.place == ""}
-                                                        style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
-                                                        onClick={() => this.props.reward(this.props.nftId)}
-                                                        >
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid"}}> Return </Typography>     
-                                                        </Button>
-                                                    </Grid>
-                                                    
-                                                </Grid>
-                                                }
-                                            </div>
-                                                :
-                                                null
-                                            }
-                                            
-
 
                                         {this.state.reward ?
                                             <Grid container>

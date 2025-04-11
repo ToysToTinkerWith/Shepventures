@@ -171,16 +171,16 @@ export default function Quest(props) {
 
                 equipmentRes.assets.forEach((asset) => {
                   if (accountAssets.includes(asset.index)) {
-                    if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027 || asset.index == 2534864660 || asset.index == 2534864644) {
+                    if ((asset.index >= 2164870486 && asset.index <= 2164941846) || asset.index == 2164961027 || asset.index == 2534864660 || asset.index == 2534864644 || (asset.index >= 2874981862 && asset.index <= 2874981938)) {
                       weapons.push(asset.index)
                     }
-                    if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029 || asset.index == 2534864662 || asset.index == 2534864633) {
+                    if ((asset.index >= 2164941848 && asset.index <= 2164941877) || asset.index == 2164961029 || asset.index == 2534864662 || asset.index == 2534864633 || (asset.index >= 2874981817 && asset.index <= 2874981860)) {
                       armours.push(asset.index)
                     }
-                    if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index == 2534864668 || asset.index == 2534864648) {
+                    if ((asset.index >= 2164941879 && asset.index <= 2164941904) || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index == 2534864668 || asset.index == 2534864648 || (asset.index >= 2874981940 && asset.index <= 2874981983)) {
                       extras.push(asset.index)
                     }
-                    if (asset.index >= 2164941907 && asset.index <= 2164941923 || asset.index == 2534864657 || asset.index == 2534864646) {
+                    if ((asset.index >= 2164941907 && asset.index <= 2164941923) || asset.index == 2534864657 || asset.index == 2534864646 || (asset.index >= 2874981987 && asset.index <= 2874982018)) {
                       boots.push(asset.index)
                     }
                   }
@@ -325,8 +325,6 @@ export default function Quest(props) {
 
                 const res1 = await addr1.json()
 
-                
-
                 res1.assets.forEach((asset) => {
                   if (accountAssets.includes(asset.index)) {
                   sheps.push({asset: asset})
@@ -356,21 +354,22 @@ export default function Quest(props) {
 
                 equipmentRes.assets.forEach((asset) => {
                   if (accountAssets.includes(asset.index)) {
-                    if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027 || asset.index == 2534864660 || asset.index == 2534864644) {
+                    if ((asset.index >= 2164870486 && asset.index <= 2164941846) || asset.index == 2164961027 || asset.index == 2534864660 || asset.index == 2534864644 || (asset.index >= 2874981862 && asset.index <= 2874981938)) {
                       weapons.push(asset.index)
                     }
-                    if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029 || asset.index == 2534864662 || asset.index == 2534864633) {
+                    if ((asset.index >= 2164941848 && asset.index <= 2164941877) || asset.index == 2164961029 || asset.index == 2534864662 || asset.index == 2534864633 || (asset.index >= 2874981817 && asset.index <= 2874981860)) {
                       armours.push(asset.index)
                     }
-                    if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index == 2534864668 || asset.index == 2534864648) {
+                    if ((asset.index >= 2164941879 && asset.index <= 2164941904) || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index == 2534864668 || asset.index == 2534864648 || (asset.index >= 2874981940 && asset.index <= 2874981983)) {
                       extras.push(asset.index)
                     }
-                    if (asset.index >= 2164941907 && asset.index <= 2164941923 || asset.index == 2534864657 || asset.index == 2534864646) {
+                    if ((asset.index >= 2164941907 && asset.index <= 2164941923) || asset.index == 2534864657 || asset.index == 2534864646 || (asset.index >= 2874981987 && asset.index <= 2874982018)) {
                       boots.push(asset.index)
                     }
                   }
                   
                 })
+
                 setWeapons(weapons)
                 setArmours(armours)
                 setBoots(boots)
@@ -414,10 +413,9 @@ export default function Quest(props) {
         let shepBox = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("place"))])
         let shepTime = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("time"))])
 
-        let shepXp = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("xp"))])
 
 
-        let boxes = [{appIndex: 0, name: shepBox}, {appIndex: 0, name: shepTime}, {appIndex: 0, name: shepXp}]
+        let boxes = [{appIndex: 0, name: shepBox}, {appIndex: 0, name: shepTime}]
 
         let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
@@ -468,7 +466,7 @@ export default function Quest(props) {
         let shepBox = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("place"))])
         let shepTime = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("time"))])
 
-        let shepXp = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("xp"))])
+        let shepXp = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("xpS2"))])
         let shepStats = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("stats"))])
 
         let shepResult = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("result"))])
@@ -499,7 +497,7 @@ export default function Quest(props) {
 
       }
 
-      const reward = async (shep) => {
+      const reward = async (shep, place) => {
 
         const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
         
@@ -516,12 +514,16 @@ export default function Quest(props) {
         const accounts = []
         const foreignApps = []
             
-        const foreignAssets = [shep]
+        let foreignAssets = [shep]
 
-        let commons = new Uint8Array(Buffer.from("commons"))
-        let uncommons = new Uint8Array(Buffer.from("uncommons"))
-        let rares = new Uint8Array(Buffer.from("rares"))
-        let legendarys = new Uint8Array(Buffer.from("legendarys"))
+        if (place == "jump") {
+          foreignAssets.push(2582590415)
+        }
+
+        let commons = new Uint8Array(Buffer.from("commonsS2"))
+        let uncommons = new Uint8Array(Buffer.from("uncommonsS2"))
+        let rares = new Uint8Array(Buffer.from("raresS2"))
+        let legendarys = new Uint8Array(Buffer.from("legendarysS2"))
 
         let shepBytes = longToByteArray(shep)
 
@@ -529,10 +531,11 @@ export default function Quest(props) {
         let shepResult = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("result"))])
         let shepReward = new Uint8Array([...shepBytes, ...new Uint8Array(Buffer.from("reward"))])
 
-
-
         let boxes = [{appIndex: 0, name: shepBox}, {appIndex: 0, name: shepReward}, {appIndex: 0, name: shepResult}, {appIndex: 0, name: commons}, {appIndex: 0, name: uncommons}, {appIndex: 0, name: rares}, {appIndex: 0, name: legendarys}]
 
+        if (place == "jump") {
+          boxes = [{appIndex: 0, name: shepBox}, {appIndex: 0, name: shepReward}, {appIndex: 0, name: shepResult}]
+        }
 
         let rtxn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
@@ -669,7 +672,7 @@ export default function Quest(props) {
 
         let accountBoxPlace = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("place"))])
         let accountBoxTime = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("time"))])
-        let accountBoxXp = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xp"))])
+        let accountBoxXp = new Uint8Array([...assetBox, ...new Uint8Array(Buffer.from("xpS2"))])
 
 
       
