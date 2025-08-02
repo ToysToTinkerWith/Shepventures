@@ -20,21 +20,33 @@ def approval_program():
         Cond(
             [Or(Txn.assets[0] == Int(2164870486), Txn.assets[0] == Int(2164870489), Txn.assets[0] == Int(2164870498), Txn.assets[0] == Int(2164870500), 
                 Txn.assets[0] == Int(2164870507), Txn.assets[0] == Int(2164870510), Txn.assets[0] == Int(2164941848), Txn.assets[0] == Int(2164941852), 
-                Txn.assets[0] == Int(2164941855), Txn.assets[0] == Int(2164941879), Txn.assets[0] == Int(2164941881), Txn.assets[0] == Int(2164941907)), 
+                Txn.assets[0] == Int(2164941855), Txn.assets[0] == Int(2164941879), Txn.assets[0] == Int(2164941881), Txn.assets[0] == Int(2164941907),
+                Txn.assets[0] == Int(2874981817), Txn.assets[0] == Int(2874981819), Txn.assets[0] == Int(2874981821), Txn.assets[0] == Int(2874981862), 
+                Txn.assets[0] == Int(2874981864), Txn.assets[0] == Int(2874981869), Txn.assets[0] == Int(2874981871), Txn.assets[0] == Int(2874981878), 
+                Txn.assets[0] == Int(2874981880), Txn.assets[0] == Int(2874981940), Txn.assets[0] == Int(2874981942), Txn.assets[0] == Int(2874981944),
+                Txn.assets[0] == Int(2874981947), Txn.assets[0] == Int(2874981987), Txn.assets[0] == Int(2874981989)), 
                 Seq(
                     common.store(Int(2)),
                 )
             ],
             [Or(Txn.assets[0] == Int(2164941792), Txn.assets[0] == Int(2164941794), Txn.assets[0] == Int(2164941797), Txn.assets[0] == Int(2164941807), 
                 Txn.assets[0] == Int(2164941815), Txn.assets[0] == Int(2164941818), Txn.assets[0] == Int(2164941858), Txn.assets[0] == Int(2164941860), 
-                Txn.assets[0] == Int(2164941862), Txn.assets[0] == Int(2164941894), Txn.assets[0] == Int(2164941910), Txn.assets[0] == Int(2164961032)), 
+                Txn.assets[0] == Int(2164941862), Txn.assets[0] == Int(2164941894), Txn.assets[0] == Int(2164941910), Txn.assets[0] == Int(2164961032),
+                Txn.assets[0] == Int(2874981832), Txn.assets[0] == Int(2874981838), Txn.assets[0] == Int(2874981845), Txn.assets[0] == Int(2874981882), 
+                Txn.assets[0] == Int(2874981884), Txn.assets[0] == Int(2874981886), Txn.assets[0] == Int(2874981908), Txn.assets[0] == Int(2874981912), 
+                Txn.assets[0] == Int(2874981949), Txn.assets[0] == Int(2874981953), Txn.assets[0] == Int(2874981956), Txn.assets[0] == Int(2874981991),
+                Txn.assets[0] == Int(2874982010), Txn.assets[0] == Int(2874981914)), 
                 Seq(
                     common.store(Int(7)),
                 )
             ],
             [Or(Txn.assets[0] == Int(2164941820), Txn.assets[0] == Int(2164941822), Txn.assets[0] == Int(2164941824), Txn.assets[0] == Int(2164941826), 
                 Txn.assets[0] == Int(2164941829), Txn.assets[0] == Int(2164941831), Txn.assets[0] == Int(2164941865), Txn.assets[0] == Int(2164941868), 
-                Txn.assets[0] == Int(2164941870), Txn.assets[0] == Int(2164941897), Txn.assets[0] == Int(2164941921), Txn.assets[0] == Int(2164961034)), 
+                Txn.assets[0] == Int(2164941870), Txn.assets[0] == Int(2164941897), Txn.assets[0] == Int(2164941921), Txn.assets[0] == Int(2164961034),
+                Txn.assets[0] == Int(2874981848), Txn.assets[0] == Int(2874981850), Txn.assets[0] == Int(2874981854), Txn.assets[0] == Int(2874981916), 
+                Txn.assets[0] == Int(2874981918), Txn.assets[0] == Int(2874981920), Txn.assets[0] == Int(2874981922), Txn.assets[0] == Int(2874981924), 
+                Txn.assets[0] == Int(2874981926), Txn.assets[0] == Int(2874981958), Txn.assets[0] == Int(2874981969), Txn.assets[0] == Int(2874981971),
+                Txn.assets[0] == Int(2874982012), Txn.assets[0] == Int(2874982014)), 
                 Seq(
                     common.store(Int(15)),
                     rare.store(Int(2))
@@ -42,7 +54,11 @@ def approval_program():
             ],
             [Or(Txn.assets[0] == Int(2164941833), Txn.assets[0] == Int(2164941835), Txn.assets[0] == Int(2164941837), Txn.assets[0] == Int(2164941841), 
                 Txn.assets[0] == Int(2164941846), Txn.assets[0] == Int(2164941872), Txn.assets[0] == Int(2164941877), Txn.assets[0] == Int(2164941904), 
-                Txn.assets[0] == Int(2164941923), Txn.assets[0] == Int(2164961027), Txn.assets[0] == Int(2164961029), Txn.assets[0] == Int(2164961036)), 
+                Txn.assets[0] == Int(2164941923), Txn.assets[0] == Int(2164961027), Txn.assets[0] == Int(2164961029), Txn.assets[0] == Int(2164961036),
+                Txn.assets[0] == Int(2874981856), Txn.assets[0] == Int(2874981858), Txn.assets[0] == Int(2874981860), Txn.assets[0] == Int(2874981928), 
+                Txn.assets[0] == Int(2874981930), Txn.assets[0] == Int(2874981932), Txn.assets[0] == Int(2874981934), Txn.assets[0] == Int(2874981936), 
+                Txn.assets[0] == Int(2874981938), Txn.assets[0] == Int(2874981973), Txn.assets[0] == Int(2874981983), Txn.assets[0] == Int(2874982016),
+                Txn.assets[0] == Int(2874982018)), 
                 Seq(
                     common.store(Int(35)),
                     rare.store(Int(7))

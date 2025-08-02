@@ -108,7 +108,7 @@ def approval_program():
                App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xpS2")), Itob(Add(Minus(Div(Mul(Int(40), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(1400)), Btoi(xpS2.value())))),
                App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xpS2")), Itob(Add(Minus(Div(Mul(Int(40), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(1400)) / Int(2), Btoi(xpS2.value()))))
             ),
-            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())), Int(700)) * surRoll.load() / Int(100)), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())), Int(700)) * powRoll.load() / Int(100)))),
+            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())) + surRoll.load(), Int(800))), Itob(Minus(Mul(Int(10), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())) + powRoll.load(), Int(4000))))),
             Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("time"))))
         )],
         [place.value() == Bytes("footie"), Seq(
@@ -117,7 +117,7 @@ def approval_program():
                App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xpS2")), Itob(Add(Minus(Div(Mul(Int(72), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(2520)), Btoi(xpS2.value())))),
                App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xpS2")), Itob(Add(Minus(Div(Mul(Int(72), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(2520)) / Int(2), Btoi(xpS2.value()))))
             ),
-            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())), Int(700)) * surRoll.load() / Int(100)), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())), Int(700)) * powRoll.load() / Int(100)))),
+            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())) + surRoll.load(), Int(800))), Itob(Minus(Mul(Int(10), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())) + powRoll.load(), Int(4000))))),
             Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("time"))))
         )],
         [place.value() == Bytes("marathon"), Seq(
@@ -126,7 +126,7 @@ def approval_program():
                App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xpS2")), Itob(Add(Minus(Div(Mul(Int(300), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(10500)), Btoi(xpS2.value())))),
                App.box_put(Concat(Itob(Txn.assets[0]), Bytes("xpS2")), Itob(Add(Minus(Div(Mul(Int(300), Add(Btoi(Extract(shepStats.value(), Int(16), Int(8))), Xp.load())), Int(10)), Int(10500)) / Int(2), Btoi(xpS2.value()))))
             ),
-            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())), Int(700)) * surRoll.load() / Int(100)), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())), Int(700)) * powRoll.load() / Int(100)))),
+            App.box_put(Concat(Itob(Txn.assets[0]), Bytes("result")), Concat(Itob(surRoll.load()), Itob(powRoll.load()), Itob(Minus(Mul(Int(2), Add(Btoi(Extract(shepStats.value(), Int(0), Int(8))), survival.load())) + surRoll.load(), Int(800))), Itob(Minus(Mul(Int(10), Add(Btoi(Extract(shepStats.value(), Int(8), Int(8))), power.load())) + powRoll.load(), Int(4000))))),
             Assert(App.box_delete(Concat(Itob(Txn.assets[0]), Bytes("time"))))
         )]
         ),
@@ -153,7 +153,7 @@ def approval_program():
         result := App.box_get(Concat(Itob(Txn.assets[0]), Bytes("result"))),        
         Cond(
             [place.value() == Bytes("jump"), Seq(
-            If(Btoi(Extract(result.value(), Int(16), Int(8))) >= Int(100),
+            If(Btoi(Extract(result.value(), Int(16), Int(8))) >= Int(160),
                Cond(
                    [Btoi(Extract(result.value(), Int(24), Int(8))) >= Int(950), Seq(
                     Assert(Txn.assets[1] == Int(2582590415)),
@@ -192,7 +192,7 @@ def approval_program():
             ),
         )],
         [place.value() == Bytes("footie"), Seq(
-            If(Btoi(Extract(result.value(), Int(16), Int(8))) >= Int(60),
+            If(Btoi(Extract(result.value(), Int(16), Int(8))) >= Int(100),
                Cond(
                    [Btoi(Extract(result.value(), Int(24), Int(8))) >= Int(900), Seq(
                     box := App.box_get(Bytes("raresS2")),
@@ -231,7 +231,7 @@ def approval_program():
             ),
         )],
         [place.value() == Bytes("marathon"), Seq(
-            If(Btoi(Extract(result.value(), Int(16), Int(8))) >= Int(40),
+            If(Btoi(Extract(result.value(), Int(16), Int(8))) >= Int(80),
                Cond(
                    [Btoi(Extract(result.value(), Int(24), Int(8))) >= Int(950), Seq(
                     box := App.box_get(Bytes("legendarysS2")),
