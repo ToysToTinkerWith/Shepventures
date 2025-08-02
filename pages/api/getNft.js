@@ -1,31 +1,32 @@
-import NextCors from 'nextjs-cors';
+import NextCors from 'nextjs-cors'
+import algosdk from 'algosdk'
 
-import algosdk from "algosdk"
-
+// Custom replacer to safely convert BigInt values
+function replacer(key, value) {
+  return typeof value === 'bigint' ? Number(value.toString()) : value
+}
 
 async function getNft(req, res) {
-   // Run the cors middleware
-   // nextjs-cors uses the cors package, so we invite you to check the documentation https://github.com/expressjs/cors
-
-   await NextCors(req, res, {
-    // Options
+  await NextCors(req, res, {
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     origin: '*',
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
- });
+    optionsSuccessStatus: 200,
+  })
 
+  const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
 
- const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.algonode.cloud', 443)
+  try {
+    const response = await indexerClient
+      .searchForAssets()
+      .index(req.body.nftId)
+      .do()
 
-  let response;
-
-  response = await indexerClient.searchForAssets().index(req.body.nftId).do();
-  
-  
-  res.json(response);
-  
-
-   
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(response, replacer))
+  } catch (err) {
+    console.error('Indexer error:', err)
+    res.status(500).json({ error: 'Failed to fetch NFT data' })
+  }
 }
 
 export default getNft

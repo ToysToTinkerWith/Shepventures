@@ -11,11 +11,20 @@ import Craft from "../components/craft"
 import Leaderboards from "../components/leaderboards"
 
 
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 
 export default function Index(props) { 
 
-    const { activeAccount } = useWallet()
+    const { 
+        wallets,             // List of available wallets
+        activeWallet,        // Currently active wallet
+        activeAddress,       // Address of active account
+        isReady,             // Whether all wallet providers have finished initialization
+        signTransactions,    // Function to sign transactions
+        transactionSigner,   // Typed signer for ATC and Algokit Utils
+        algodClient          // Algod client for active network
+    } = useWallet()
+    
     const [page, setPage] = useState("SHEPVENTURES")
 
     const [mode, setMode] = useState("light")
@@ -32,10 +41,10 @@ export default function Index(props) {
                 
                 </Head>
 
-               <Nav activeAccount={activeAccount} page={page} setPage={setPage} mode={mode} setMode={setMode} />
+               <Nav activeAddress={activeAddress} page={page} setPage={setPage} mode={mode} setMode={setMode} />
 
                {page == "SHEPVENTURES" || page == "connect" ? 
-               <Home setPage={setPage} activeAccount={activeAccount} mode={mode} />
+               <Home setPage={setPage} activeAddress={activeAddress} mode={mode} />
                :
                null
                }

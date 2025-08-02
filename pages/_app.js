@@ -12,34 +12,25 @@ import "../style.css"
 
 import { Button, Typography, Grid, CircularProgress } from "@mui/material"
 
-import { WalletProvider, PROVIDER_ID, useInitializeProviders  } from '@txnlab/use-wallet'
+import { WalletManager, WalletId, NetworkId, WalletProvider } from '@txnlab/use-wallet-react'
 
-import { PeraWalletConnect } from "@perawallet/connect";
-import { DeflyWalletConnect } from "@blockshake/defly-connect";
-
-import { useWallet } from '@txnlab/use-wallet'
 
 import CancelIcon from '@mui/icons-material/Cancel';
 
 
+
+
 export default function MyApp(props) {
 
-  const providers = useInitializeProviders({
-    providers: [
-      { id: PROVIDER_ID.PERA, clientStatic: PeraWalletConnect },
-      { id: PROVIDER_ID.DEFLY, clientStatic: DeflyWalletConnect }
- 
-    ]
+  const manager = new WalletManager({
+    wallets: [WalletId.PERA, WalletId.DEFLY],
+    defaultNetwork: NetworkId.MAINNET // or just 'mainnet'
   })
 
   const { Component, pageProps } = props;
 
-  const { activeAccount, signTransactions, sendTransactions } = useWallet()
-
   const [ message, setMessage ] = useState("")
   const [ progress, setProgress ] = useState(0)
-
-  const [ wallet, setWallet ] = useState([])
 
   let contracts = {}
 
@@ -56,7 +47,7 @@ export default function MyApp(props) {
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange)
     }
-  }, [router.events, activeAccount])
+  }, [router.events])
 
   useEffect(() => {
     const jssStyles = document.querySelector("#jss-server-side");
@@ -110,12 +101,12 @@ export default function MyApp(props) {
       }
       
      
-     <WalletProvider value={providers}>
+     <WalletProvider manager={manager}>
 
       <ThemeProvider theme={theme}>
       <CssBaseline />
       
-        <Component {...pageProps} setMessage={setMessage} setProgress={setProgress} contracts={contracts} sendDiscordMessage={sendDiscordMessage} wallet={wallet} />
+        <Component {...pageProps} setMessage={setMessage} setProgress={setProgress} contracts={contracts} sendDiscordMessage={sendDiscordMessage} />
       </ThemeProvider>
       </WalletProvider>
     </React.Fragment>
