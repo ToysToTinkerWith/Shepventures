@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 
 import { Button, Typography, Modal } from '@mui/material';
 
@@ -7,7 +7,16 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 
 export default function Connect(props) {
-  const { providers, activeAccount } = useWallet()
+
+  const { 
+    wallets,             // List of available wallets
+    activeWallet,        // Currently active wallet
+    activeAddress,       // Address of active account
+    isReady,             // Whether all wallet providers have finished initialization
+    signTransactions,    // Function to sign transactions
+    transactionSigner,   // Typed signer for ATC and Algokit Utils
+    algodClient          // Algod client for active network
+  } = useWallet()
 
   const [open, setOpen] = useState(false)
 
@@ -18,25 +27,25 @@ export default function Connect(props) {
     
 })
 
+console.log(props)
+
   // Map through the providers.
   // Render account information and "connect", "set active", and "disconnect" buttons.
   // Finally, map through the `accounts` property to render a dropdown for each connected account.
   return (
     <div>
-    {props.activeAccount ?
+    {activeAddress ?
       <Button
       variant="text"
       style={{display: "grid"}}
       onClick={() => [setOpen(!open), props.setPage("SHEPVENTURES")]} 
       >
-        <img src={"Wallet.svg"} style={{width: "40px"}} />
-        <Typography variant="caption"> {props.activeAccount.address.substring(0,6)}...{props.activeAccount.address.substring(53)} </Typography>
+        <img src={"Wallet.svg"} style={{width: "50px"}} />
     </Button>
       :
       <Button
         variant="text"
-        style={{}}
-
+        style={{display: "grid"}}
         onClick={() => [setOpen(!open), props.setPage("SHEPVENTURES")]}
         >
         <img src={"Wallet.svg"} style={{width: "50px"}} />
@@ -48,12 +57,11 @@ export default function Connect(props) {
     onClick={() => setOpen(false)}
     style={{position: "absolute", top: "0", right: "0"}}
     >
-    <div>
       
       
   <div style={{position: "absolute", zIndex: 6, backgroundColor: "white", right: 0, border: "1px solid black", borderRadius: 15}}>
-  {providers?.map((provider) => (
-    <div key={'provider-' + provider.metadata.id} style={{margin: 30}}>
+  {wallets?.map((provider) => (
+    <div key={'provider-' + provider.id} style={{margin: 30}}>
       <Typography >
         <img width={30} height={30} style={{margin: 10, color: "#FAFAFA", borderRadius: 15}} alt="" src={provider.metadata.icon} />
         {provider.metadata.name} {provider.isActive && '[active]'}
@@ -68,35 +76,17 @@ export default function Connect(props) {
         </Button>
         <Button
         style={{margin: 10}}
-          onClick={provider.setActiveProvider}
+          onClick={provider.setActiveAccount}
           disabled={!provider.isConnected || provider.isActive}
         >
           Set Active
         </Button>
-        <div>
-          {provider.isActive && provider.accounts.length && (
-            <div
-              value={activeAccount?.address}
-              onChange={(e) => provider.setActiveAccount(e.target.value)}
-            >
-             <Button onClick={() => navigator.clipboard.writeText(activeAccount.address)}>
-            <ContentCopyIcon color="primary" />
-            </Button>
-            {activeAccount ? 
-                    <Typography variant="caption"> {activeAccount.address.substring(0,10)} </Typography>
-            : null
-            }
-                  
-                
-            </div>
-          )}
-        </div>
+        
       </div>
     </div>
   ))}
 </div>
 
-  </div>
    
   </Modal>
   </div>

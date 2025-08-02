@@ -1,6 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { Typography, Button, Grid } from "@mui/material"
+
+import { useWallet } from '@txnlab/use-wallet-react'
+
 
 
 export default function Home(props) {
@@ -10,10 +13,26 @@ export default function Home(props) {
     const [isCraftHovered, setCraftHovered] = useState(false)
     const [isLeaderboardHovered, setLeaderboardHovered] = useState(false)
 
+    const [hasMounted, setHasMounted] = useState(false)
 
-console.log(props.activeAccount)
+    const { 
+        wallets,             // List of available wallets
+        activeAddress,       // Address of active account
+        isReady,             // Whether all wallet providers have finished initialization
+        signTransactions,    // Function to sign transactions
+        transactionSigner,   // Typed signer for ATC and Algokit Utils
+        algodClient          // Algod client for active network
+    } = useWallet()
 
-if (props.activeAccount) {
+console.log(props)
+
+useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+if (!hasMounted) return null
+
+if (activeAddress) {
     return (
         <div style={{backgroundColor: props.mode == "light" ? "#E9D8A6" : "#33363F", height: "100vh"}}>
         <Grid container align="center" style={{position: "relative", backgroundColor: props.mode == "light" ? "#E9D8A6" : "#33363F"}} >
@@ -21,7 +40,7 @@ if (props.activeAccount) {
             <Button style={{backgroundColor: "#EE9B00", boxShadow: "rgba(0, 0, 0, 0.15) 3.95px 3.95px 2.6px"}} 
             onMouseEnter={() => setQuestHovered(true)}
             onMouseLeave={() => setQuestHovered(false)} 
-            onClick={() => props.activeAccount ? props.setPage("QUEST") : props.setPage("connect")}>
+            onClick={() => activeAddress ? props.setPage("QUEST") : props.setPage("connect")}>
                 {isQuestHovered ? 
                     <Typography color="primary"  align="center" variant="h1" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Quest </Typography>
                 :
@@ -37,7 +56,7 @@ if (props.activeAccount) {
             <Button style={{backgroundColor: "#EE9B00", boxShadow: "rgba(0, 0, 0, 0.15) 3.95px 3.95px 2.6px"}} 
             onMouseEnter={() => setTrainHovered(true)}
             onMouseLeave={() => setTrainHovered(false)} 
-            onClick={() => props.activeAccount ? props.setPage("TRAIN") : props.setPage("connect")}>
+            onClick={() => activeAddress ? props.setPage("TRAIN") : props.setPage("connect")}>
                 {isTrainHovered ? 
                     <Typography color="primary"  align="center" variant="h1" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Train </Typography>
                 :
@@ -52,7 +71,7 @@ if (props.activeAccount) {
             <Button style={{backgroundColor: "#EE9B00", boxShadow: "rgba(0, 0, 0, 0.15) 3.95px 3.95px 2.6px"}} 
             onMouseEnter={() => setCraftHovered(true)}
             onMouseLeave={() => setCraftHovered(false)} 
-            onClick={() => props.activeAccount ? props.setPage("CRAFT") : props.setPage("connect")}>
+            onClick={() => activeAddress ? props.setPage("CRAFT") : props.setPage("connect")}>
                 {isCraftHovered ? 
                     <Typography color="primary"  align="center" variant="h1" style={{fontFamily: "LondrinaSolid", color: "#000000", padding: 15}}> Craft </Typography>
                 :
@@ -63,12 +82,11 @@ if (props.activeAccount) {
             </Button>
             
             </Grid>
-            {props.activeAccount.address == "ADYPJJIQZFQZXIRU7D43U5HIH5GSYUF3VRYA5UJXHWGNMWZR23CRH7CIKY" || props.activeAccount.address == "VWYCYQ3H3PPNIGON4H363DIH7BP33TTZWUUUNMTDXCIHRCDPFOMU7VJ5HM" ?
             <Grid item xs={12} sm={12} style={{paddingTop: "10vh"}}>
             <Button style={{backgroundColor: "#EE9B00", boxShadow: "rgba(0, 0, 0, 0.15) 3.95px 3.95px 2.6px"}} 
             onMouseEnter={() => setLeaderboardHovered(true)}
             onMouseLeave={() => setLeaderboardHovered(false)} 
-            onClick={() => props.activeAccount ? props.setPage("LEADERBOARDS") : props.setPage("connect")}>
+            onClick={() => activeAddress ? props.setPage("LEADERBOARDS") : props.setPage("connect")}>
                 {isLeaderboardHovered ? 
                     <img src={"Leaderboards.svg"} style={{width: "100px", padding: 8}} />
 
@@ -80,9 +98,7 @@ if (props.activeAccount) {
             </Button>
             
             </Grid>
-            :
-            null
-            }
+           
             
             
         </Grid>

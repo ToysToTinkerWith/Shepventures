@@ -3,14 +3,22 @@ import React, { useState } from "react"
 import { Grid, Typography, Button, CircularProgress } from "@mui/material"
 
 
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 
 import algosdk from "algosdk"
 import DisplayShep from "./displayShep"
 
 export default function Train(props) { 
 
-  const { activeAccount, signTransactions, sendTransactions } = useWallet()
+  const { 
+    wallets,             // List of available wallets
+    activeWallet,        // Currently active wallet
+    activeAddress,       // Address of active account
+    isReady,             // Whether all wallet providers have finished initialization
+    signTransactions,    // Function to sign transactions
+    transactionSigner,   // Typed signer for ATC and Algokit Utils
+    algodClient          // Algod client for active network
+  } = useWallet()
 
   const [ round, setRound] = useState(0)
 
@@ -28,7 +36,6 @@ export default function Train(props) {
 
   const [ message, setMessage] = useState("Searching for Sheps")
 
-  console.log(activeAccount)
 
 
     React.useEffect(() => {
@@ -60,7 +67,7 @@ export default function Train(props) {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    address: activeAccount.address
+                    address: activeAddress
 
                     
                 }),
@@ -88,7 +95,7 @@ export default function Train(props) {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    address: activeAccount.address,
+                    address: activeAddress,
                     nextToken: nextToken
                     
                     
@@ -146,7 +153,7 @@ export default function Train(props) {
               }
             }
             catch(error) {
-              props.sendDiscordMessage(error, "Train Fetch", activeAccount.address)
+              props.sendDiscordMessage(error, "Train Fetch", activeAddress)
             }
           }
         }
@@ -215,7 +222,7 @@ export default function Train(props) {
           
             const boxes = [{appIndex: 0, name: accountBoxPlace}, {appIndex: 0, name: accountBoxTime}, {appIndex: 0, name: accountBoxXp}, {appIndex: 0, name: accountBoxShep}]
       
-            let dtxn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, contract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
+            let dtxn = algosdk.makeApplicationNoOpTxn(activeAddress, params, contract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
       
             txns.unshift(dtxn)
             
@@ -260,7 +267,7 @@ export default function Train(props) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            address: activeAccount.address
+            address: activeAddress
 
             
         }),
@@ -288,7 +295,7 @@ export default function Train(props) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            address: activeAccount.address,
+            address: activeAddress,
             nextToken: nextToken
             
             

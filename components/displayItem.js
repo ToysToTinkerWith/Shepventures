@@ -2,7 +2,7 @@ import React, {useState} from "react"
 
 import { Typography, Button, Grid } from "@mui/material"
 
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
@@ -26,7 +26,15 @@ const byteArrayToLong = (byteArray) => {
 
 export default function DisplayItem(props) {
 
-    const { activeAccount, signTransactions, sendTransactions } = useWallet()
+    const { 
+        wallets,             // List of available wallets
+        activeWallet,        // Currently active wallet
+        activeAddress,       // Address of active account
+        isReady,             // Whether all wallet providers have finished initialization
+        signTransactions,    // Function to sign transactions
+        transactionSigner,   // Typed signer for ATC and Algokit Utils
+        algodClient          // Algod client for active network
+      } = useWallet()
 
     const [ nft, setNft] = useState(null)
     const [ nftUrl, setNftUrl] = useState(null)
@@ -44,7 +52,7 @@ export default function DisplayItem(props) {
     React.useEffect(() => {
 
         const fetchData = async () => {
-            if (activeAccount && props.nftId != 0) {
+            if (activeAddress && props.nftId != 0) {
 
                 try {
 
@@ -190,7 +198,7 @@ export default function DisplayItem(props) {
         }
         fetchData();
           
-    }, [activeAccount])
+    }, [activeAddress])
 
     const longToByteArray = (long) => {
         // we want to represent the input as a 8-bytes array
@@ -221,8 +229,8 @@ export default function DisplayItem(props) {
             if (!props.assets.includes(props.nftId)) {
 
             let otxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                activeAccount.address, 
-                activeAccount.address, 
+                activeAddress, 
+                activeAddress, 
                 undefined, 
                 undefined,
                 0,  
@@ -259,7 +267,7 @@ export default function DisplayItem(props) {
 
             let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}, {appIndex: 0, name: shepPlace}]
 
-            let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
+            let txn = algosdk.makeApplicationNoOpTxn(activeAddress, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
             txns.push(txn)
 
@@ -272,8 +280,8 @@ export default function DisplayItem(props) {
                 if (!props.assets.includes(props.equipped)) {
 
                     let otxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                        activeAccount.address, 
-                        activeAccount.address, 
+                        activeAddress, 
+                        activeAddress, 
                         undefined, 
                         undefined,
                         0,  
@@ -310,14 +318,14 @@ export default function DisplayItem(props) {
 
                 let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}, {appIndex: 0, name: shepPlace}]
 
-                let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
+                let txn = algosdk.makeApplicationNoOpTxn(activeAddress, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
                 txns.push(txn)
 
             }
 
         let stxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-            activeAccount.address, 
+            activeAddress, 
             "NA4ARVXN5LZIDIBVF4KHWMOLEKN6FENRCMAHZMFXXXVUDO5TL4OOQEM24I", 
             undefined, 
             undefined,
@@ -355,7 +363,7 @@ export default function DisplayItem(props) {
 
         let boxes = [{appIndex: 0, name: shepStats}, {appIndex: 0, name: shepItems}, {appIndex: 0, name: new Uint8Array([...itemBytes, ...new Uint8Array(Buffer.from(props.cat))])}, {appIndex: 0, name: shepPlace}]
 
-        let txn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
+        let txn = algosdk.makeApplicationNoOpTxn(activeAddress, params, 2254344958, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
 
         txns.push(txn)
 

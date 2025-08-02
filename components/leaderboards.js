@@ -38,7 +38,7 @@ export default function Leaderboards(props) {
 
             try {
 
-                const queryxpSnapshot = await getDocs(collection(db, "LeaderboardXP"));
+                const queryxpSnapshot = await getDocs(collection(db, "LeaderboardXP2"));
     
                 // Optionally, gather all documents into an array
                 const dataxpArray = [];

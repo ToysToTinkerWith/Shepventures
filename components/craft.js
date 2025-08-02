@@ -2,7 +2,7 @@ import React, { useState } from "react"
 
 import { Grid, Typography, Button, CircularProgress } from "@mui/material"
 
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 
 import algosdk from "algosdk"
 import DisplayShep from "./displayShep"
@@ -11,7 +11,15 @@ import DisplayItem from "./displayItem"
 
 export default function Craft(props) { 
 
-  const { activeAccount, signTransactions, sendTransactions } = useWallet()
+  const { 
+      wallets,             // List of available wallets
+      activeWallet,        // Currently active wallet
+      activeAddress,       // Address of active account
+      isReady,             // Whether all wallet providers have finished initialization
+      signTransactions,    // Function to sign transactions
+      transactionSigner,   // Typed signer for ATC and Algokit Utils
+      algodClient          // Algod client for active network
+    } = useWallet()
 
   const [ round, setRound] = useState(0)
 
@@ -36,13 +44,21 @@ export default function Craft(props) {
   const [rareMat, setRareMat] = useState(0)
 
 
-  const [commons, setCommons] = useState([2164870486, 2164870489, 2164870498, 2164870500, 2164870507, 2164870510, 2164941848, 2164941852, 2164941855, 2164941879, 2164941881, 2164941907])
+  const [commons, setCommons] = useState([2164870486, 2164870489, 2164870498, 2164870500, 2164870507, 2164870510, 2164941848, 2164941852, 2164941855, 2164941879, 2164941881, 2164941907, 2874981817, 2874981819, 2874981821, 2874981862, 2874981864,
+    2874981869, 2874981871, 2874981878, 2874981880, 2874981940,
+    2874981942, 2874981944, 2874981947, 2874981987, 2874981989])
 
-  const [uncommons, setUncommons] = useState([2164941792, 2164941794, 2164941797, 2164941807, 2164941815, 2164941818, 2164941858, 2164941860, 2164941862, 2164941894, 2164941910, 2164961032])
+  const [uncommons, setUncommons] = useState([2164941792, 2164941794, 2164941797, 2164941807, 2164941815, 2164941818, 2164941858, 2164941860, 2164941862, 2164941894, 2164941910, 2164961032, 2874981832, 2874981838, 2874981845, 2874981882, 2874981884,
+    2874981886, 2874981908, 2874981912, 2874981949, 2874981953,
+    2874981956, 2874981991, 2874982010, 2874981914])
 
-  const [rares, setRares] = useState([2164941820, 2164941822, 2164941824, 2164941826, 2164941829, 2164941831, 2164941865, 2164941868, 2164941870, 2164941897, 2164941921, 2164961034])
+  const [rares, setRares] = useState([2164941820, 2164941822, 2164941824, 2164941826, 2164941829, 2164941831, 2164941865, 2164941868, 2164941870, 2164941897, 2164941921, 2164961034, 2874981848, 2874981850, 2874981854, 2874981916, 2874981918,
+    2874981920, 2874981922, 2874981924, 2874981926, 2874981958,
+    2874981969, 2874981971, 2874982012, 2874982014])
 
-  const [legendarys, setLegendarys] = useState([2164941833, 2164941835, 2164941837, 2164941841, 2164941846, 2164941872, 2164941877, 2164941904, 2164941923, 2164961027, 2164961029, 2164961036])
+  const [legendarys, setLegendarys] = useState([2164941833, 2164941835, 2164941837, 2164941841, 2164941846, 2164941872, 2164941877, 2164941904, 2164941923, 2164961027, 2164961029, 2164961036, 2874981856, 2874981858, 2874981860, 2874981928, 2874981930,
+    2874981932, 2874981934, 2874981936, 2874981938, 2874981973,
+    2874981983, 2874982016, 2874982018])
 
   const [ message, setMessage] = useState("Searching for Sheps")
 
@@ -68,428 +84,223 @@ export default function Craft(props) {
     return byteArray;
   };
 
-  React.useEffect(() => {
-
-    const fetchData = async () => {
-        if (activeAccount) {
-
-          try {
-
-          const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
-
-          let status = await client.status().do();
-
-          setRound(status["last-round"])
-
-          setAssets([])
-          setOptedAssets([])
-          setItems([])
-          setConfirm("")
-          setProgress(0)
-
-          let sheps = []
-
-          let accountAssets = []
-          let accountOptedAssets = []
-
-          let response = await fetch('/api/getAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: activeAccount.address
-
-                
-            }),
-            
-              
-          });
-  
-          let session = await response.json()
-
-          session.assets.forEach((asset) => {
-            
-            if (asset.amount >= 1) {
-              accountAssets.push({assetId: asset["asset-id"], assetAmount: asset.amount})
-            }
-            accountOptedAssets.push(asset["asset-id"])
-        })
-
-          let numAssets = session.assets.length
-          let nextToken = session["next-token"]
-
-        while (numAssets == 1000) {
-
-          response = await fetch('/api/getAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: activeAccount.address,
-                nextToken: nextToken
-                
-                
-            }),
-            
-              
-          });  
-
-          session = await response.json()
-
-          session.assets.forEach((asset) => {
-            if (asset.amount >= 1) {
-              accountAssets.push({assetId: asset["asset-id"], assetAmount: asset.amount})
-            }
-            accountOptedAssets.push(asset["asset-id"])
-          })
-
-          numAssets = session.assets.length
-          nextToken = session["next-token"]
-
-      }
-
-      setProgress(50)
-
-
-          let addr1 = await fetch('/api/getCreatedAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: "SHEPWD4POJMJ65XPSGUCJ4GI2SGDJNDX2C2IXI24EK5KXTOV5T237ULUCU"
-
-                
-            }),
-            
-              
-            });
-
-            const res1 = await addr1.json()
-
-            res1.assets.forEach((asset) => {
-              if (accountAssets.includes(asset.index)) {
-              sheps.push({asset: asset})
-              }
-          })
-
-          let items = []
-          let craftables = []
-
-          let equipmentAddr = await fetch('/api/getCreatedAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: "3G4PM64BTRW2X452WVYXKRZSD76Z4HR5E7YLGBIC7PWI67HNXMZKCAG2EM"
-
-                
-            }),
-            
-              
-            });
-
-            const equipmentRes = await equipmentAddr.json()
-
-            console.log(equipmentRes.assets)
-
-            equipmentRes.assets.forEach((asset) => {
-              let index = accountAssets.findIndex(accAsset => accAsset.assetId === asset.index)
-              console.log(index)
-              if (index != -1) {
-
-                let rarity = ""
-
-                if (commons.includes(asset.index)) {
-                  rarity = "common"
-                }
-                if (uncommons.includes(asset.index)) {
-                  rarity = "uncommon"
-                }
-                if (rares.includes(asset.index)) {
-                  rarity = "rare"
-                }
-                if (legendarys.includes(asset.index)) {
-                  rarity = "legendary"
-                }
-
-                if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027) {
-                  console.log(accountAssets[index])
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "weapon", rarity: rarity})
-                  }
-                }
-                if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029) {
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "armour", rarity: rarity})
-                  }
-                }
-                if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036) {
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "extra", rarity: rarity})
-                  }
-                }
-                if (asset.index >= 2164941907 && asset.index <= 2164941923) {
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "boots", rarity: rarity})
-                  }
-                }
-                
-              }
-              if (asset.index >= 2534864633 && asset.index < 2874981817) {
-                console.log(asset)
-                if (asset.params.total == 100) {
-                  craftables.push({assetId: asset.index, rarity: "T1"})
-                }
-                if (asset.params.total == 10) {
-                  craftables.push({assetId: asset.index, rarity: "T2"})
-                }
-              }
-              
-            })
-            
-            accountAssets.forEach((asset) => {
-              if (asset.assetId == 2557493157) {
-                setCommonMat(asset.assetAmount)
-              }
-              if (asset.assetId == 2534921654) {
-                setRareMat(asset.assetAmount)
-              }
-            })
-
-            console.log(accountAssets)
-
-            setItems(items)
-            setCraftables(craftables)
-
-            console.log(items)
-
-            setOptedAssets(accountOptedAssets)
-
-          setProgress(100)
-
-
-         
-        }
-        catch(error) {
-          props.sendDiscordMessage(error, "Quest Fetch", activeAccount.address)
-        }
-      }
-    }
-      fetchData();
-    
-  }, [activeAccount])
-
-     
-
   const fetchData = async () => {
+    if (activeAddress) {
+
       try {
 
-        const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
+      const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
 
-          let status = await client.status().do();
+      let status = await client.status().do();
 
-          setRound(status["last-round"])
+      setRound(status["last-round"])
 
-          setAssets([])
-          setOptedAssets([])
-          setItems([])
-          setConfirm("")
-          setProgress(0)
+      setAssets([])
+      setOptedAssets([])
+      setItems([])
+      setConfirm("")
+      setProgress(0)
 
-          let sheps = []
+      let sheps = []
 
-          let accountAssets = []
-          let accountOptedAssets = []
+      let accountAssets = []
+      let accountOptedAssets = []
 
-          let response = await fetch('/api/getAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: activeAccount.address
+      let response = await fetch('/api/getAssets', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            address: activeAddress
 
-                
-            }),
             
-              
-          });
-  
-          let session = await response.json()
+        }),
+        
+          
+      });
 
-          session.assets.forEach((asset) => {
+      let session = await response.json()
+
+      session.assets.forEach((asset) => {
+        
+        if (asset.amount >= 1) {
+          accountAssets.push({assetId: asset["asset-id"], assetAmount: asset.amount})
+        }
+        accountOptedAssets.push(asset["asset-id"])
+    })
+
+      let numAssets = session.assets.length
+      let nextToken = session["next-token"]
+
+    while (numAssets == 1000) {
+
+      response = await fetch('/api/getAssets', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            address: activeAddress,
+            nextToken: nextToken
             
-            if (asset.amount >= 1) {
-              accountAssets.push({assetId: asset["asset-id"], assetAmount: asset.amount})
+            
+        }),
+        
+          
+      });  
+
+      session = await response.json()
+
+      session.assets.forEach((asset) => {
+        if (asset.amount >= 1) {
+          accountAssets.push({assetId: asset["asset-id"], assetAmount: asset.amount})
+        }
+        accountOptedAssets.push(asset["asset-id"])
+      })
+
+      numAssets = session.assets.length
+      nextToken = session["next-token"]
+
+  }
+
+  setProgress(50)
+
+
+      let addr1 = await fetch('/api/getCreatedAssets', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            address: "SHEPWD4POJMJ65XPSGUCJ4GI2SGDJNDX2C2IXI24EK5KXTOV5T237ULUCU"
+
+            
+        }),
+        
+          
+        });
+
+        const res1 = await addr1.json()
+
+        res1.assets.forEach((asset) => {
+          if (accountAssets.includes(asset.index)) {
+          sheps.push({asset: asset})
+          }
+      })
+
+      let items = []
+      let craftables = []
+
+      let equipmentAddr = await fetch('/api/getCreatedAssets', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            address: "3G4PM64BTRW2X452WVYXKRZSD76Z4HR5E7YLGBIC7PWI67HNXMZKCAG2EM"
+
+            
+        }),
+        
+          
+        });
+
+        const equipmentRes = await equipmentAddr.json()
+
+        console.log(equipmentRes.assets)
+
+        equipmentRes.assets.forEach((asset) => {
+          let index = accountAssets.findIndex(accAsset => accAsset.assetId === asset.index)
+          console.log(index)
+          if (index != -1) {
+
+            let rarity = ""
+
+            if (commons.includes(asset.index)) {
+              rarity = "common"
             }
-            accountOptedAssets.push(asset["asset-id"])
+            if (uncommons.includes(asset.index)) {
+              rarity = "uncommon"
+            }
+            if (rares.includes(asset.index)) {
+              rarity = "rare"
+            }
+            if (legendarys.includes(asset.index)) {
+              rarity = "legendary"
+            }
+
+            if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027 || asset.index >= 2874981862 && asset.index <= 2874981938) {
+              console.log(accountAssets[index])
+              for (let i = 0; i < accountAssets[index].assetAmount; i++) {
+                items.push({assetId: asset.index, type: "weapon", rarity: rarity})
+              }
+            }
+            if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029 || asset.index >= 2874981817 && asset.index <= 2874981860) {
+              for (let i = 0; i < accountAssets[index].assetAmount; i++) {
+                items.push({assetId: asset.index, type: "armour", rarity: rarity})
+              }
+            }
+            if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036 || asset.index >= 2874981940 && asset.index <= 2874981983) {
+              for (let i = 0; i < accountAssets[index].assetAmount; i++) {
+                items.push({assetId: asset.index, type: "extra", rarity: rarity})
+              }
+            }
+            if (asset.index >= 2164941907 && asset.index <= 2164941923 || asset.index >= 2874981987 && asset.index <= 2874982018) {
+              for (let i = 0; i < accountAssets[index].assetAmount; i++) {
+                items.push({assetId: asset.index, type: "boots", rarity: rarity})
+              }
+            }
+            
+          }
+          if (asset.index >= 2534864633 && asset.index < 2874981817) {
+            console.log(asset)
+            if (asset.params.total == 100) {
+              craftables.push({assetId: asset.index, rarity: "T1"})
+            }
+            if (asset.params.total == 10) {
+              craftables.push({assetId: asset.index, rarity: "T2"})
+            }
+          }
+          
+        })
+        
+        accountAssets.forEach((asset) => {
+          if (asset.assetId == 2557493157) {
+            setCommonMat(asset.assetAmount)
+          }
+          if (asset.assetId == 2534921654) {
+            setRareMat(asset.assetAmount)
+          }
         })
 
-          let numAssets = session.assets.length
-          let nextToken = session["next-token"]
+        console.log(accountAssets)
 
-        while (numAssets == 1000) {
+        setItems(items)
+        setCraftables(craftables)
 
-          response = await fetch('/api/getAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: activeAccount.address,
-                nextToken: nextToken
-                
-                
-            }),
-            
-              
-          });  
+        console.log(items)
 
-          session = await response.json()
+        setOptedAssets(accountOptedAssets)
 
-          session.assets.forEach((asset) => {
-            if (asset.amount >= 1) {
-              accountAssets.push({assetId: asset["asset-id"], assetAmount: asset.amount})
-            }
-            accountOptedAssets.push(asset["asset-id"])
-          })
-
-          numAssets = session.assets.length
-          nextToken = session["next-token"]
-
-      }
-
-      setProgress(50)
+      setProgress(100)
 
 
-          let addr1 = await fetch('/api/getCreatedAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: "SHEPWD4POJMJ65XPSGUCJ4GI2SGDJNDX2C2IXI24EK5KXTOV5T237ULUCU"
-
-                
-            }),
-            
-              
-            });
-
-            const res1 = await addr1.json()
-
-            res1.assets.forEach((asset) => {
-              if (accountAssets.includes(asset.index)) {
-              sheps.push({asset: asset})
-              }
-          })
-
-          let items = []
-          let craftables = []
-
-          let equipmentAddr = await fetch('/api/getCreatedAssets', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: "3G4PM64BTRW2X452WVYXKRZSD76Z4HR5E7YLGBIC7PWI67HNXMZKCAG2EM"
-
-                
-            }),
-            
-              
-            });
-
-            const equipmentRes = await equipmentAddr.json()
-
-            console.log(equipmentRes.assets)
-
-            equipmentRes.assets.forEach((asset) => {
-              let index = accountAssets.findIndex(accAsset => accAsset.assetId === asset.index)
-              console.log(index)
-              if (index != -1) {
-
-                let rarity = ""
-
-                if (commons.includes(asset.index)) {
-                  rarity = "common"
-                }
-                if (uncommons.includes(asset.index)) {
-                  rarity = "uncommon"
-                }
-                if (rares.includes(asset.index)) {
-                  rarity = "rare"
-                }
-                if (legendarys.includes(asset.index)) {
-                  rarity = "legendary"
-                }
-
-                if (asset.index >= 2164870486 && asset.index <= 2164941846 || asset.index == 2164961027) {
-                  console.log(accountAssets[index])
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "weapon", rarity: rarity})
-                  }
-                }
-                if (asset.index >= 2164941848 && asset.index <= 2164941877 || asset.index == 2164961029) {
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "armour", rarity: rarity})
-                  }
-                }
-                if (asset.index >= 2164941879 && asset.index <= 2164941904 || asset.index == 2164961032 || asset.index == 2164961034 || asset.index == 2164961036) {
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "extra", rarity: rarity})
-                  }
-                }
-                if (asset.index >= 2164941907 && asset.index <= 2164941923) {
-                  for (let i = 0; i < accountAssets[index].assetAmount; i++) {
-                    items.push({assetId: asset.index, type: "boots", rarity: rarity})
-                  }
-                }
-                
-              }
-              if (asset.index >= 2534864633) {
-                console.log(asset)
-                if (asset.params.total == 100) {
-                  craftables.push({assetId: asset.index, rarity: "T1"})
-                }
-                if (asset.params.total == 10) {
-                  craftables.push({assetId: asset.index, rarity: "T2"})
-                }
-              }
-              
-            })
-            
-            accountAssets.forEach((asset) => {
-              if (asset.assetId == 2557493157) {
-                setCommonMat(asset.assetAmount)
-              }
-              if (asset.assetId == 2534921654) {
-                setRareMat(asset.assetAmount)
-              }
-            })
-
-            console.log(accountAssets)
-
-            setItems(items)
-            setCraftables(craftables)
-
-            console.log(items)
-
-            setOptedAssets(accountOptedAssets)
-
-          setProgress(100)
-
+     
     }
     catch(error) {
-      props.sendDiscordMessage(error, "Quest Fetch", activeAccount.address)
+      props.sendDiscordMessage(error, "Quest Fetch", activeAddress)
     }
-    
   }
+}
+
+  React.useEffect(() => {
+
+    
+      fetchData();
+    
+  }, [activeAddress])
+
 
     const dust = async () => {
 
@@ -515,7 +326,7 @@ export default function Craft(props) {
         let optedCommon = await indexerClient.lookupAssetBalances(2557493157).do();
 
         optedCommon.balances.forEach((account) => {
-            if(account.address == activeAccount.address) {
+            if(account.address == activeAddress) {
             optedInCommon = true
             }
         })
@@ -523,8 +334,8 @@ export default function Craft(props) {
         if (!optedInCommon) {
 
             let octxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                activeAccount.address, 
-                activeAccount.address, 
+                activeAddress, 
+                activeAddress, 
                 undefined, 
                 undefined,
                 0,  
@@ -553,7 +364,7 @@ export default function Craft(props) {
         let optedRare = await indexerClient.lookupAssetBalances(2534921654).do();
 
         optedRare.balances.forEach((account) => {
-            if(account.address == activeAccount.address) {
+            if(account.address == activeAddress) {
               optedInRare = true
             }
         })
@@ -561,8 +372,8 @@ export default function Craft(props) {
         if (!optedInRare) {
 
             let ortxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                activeAccount.address, 
-                activeAccount.address, 
+                activeAddress, 
+                activeAddress, 
                 undefined, 
                 undefined,
                 0,  
@@ -584,7 +395,7 @@ export default function Craft(props) {
         params.lastRound  -= roundOffset;
 
         let atxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-          activeAccount.address, 
+          activeAddress, 
           "4E7OY45TM5DY264HBPF7UYHLTGYUXTCSDKHGG6VB346XZNORURU2BAETBA", 
           undefined, 
           undefined,
@@ -607,7 +418,7 @@ export default function Craft(props) {
       
         const boxes = []
   
-        let dtxn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, craftContract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
+        let dtxn = algosdk.makeApplicationNoOpTxn(activeAddress, params, craftContract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
   
         txns.push(dtxn)
 
@@ -667,7 +478,7 @@ export default function Craft(props) {
         let opted = await indexerClient.lookupAssetBalances(assetId).do();
 
         opted.balances.forEach((account) => {
-            if(account.address == activeAccount.address) {
+            if(account.address == activeAddress) {
             optedIn = true
             }
         })
@@ -675,8 +486,8 @@ export default function Craft(props) {
         if (!optedIn) {
 
             let otxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                activeAccount.address, 
-                activeAccount.address, 
+                activeAddress, 
+                activeAddress, 
                 undefined, 
                 undefined,
                 0,  
@@ -692,7 +503,7 @@ export default function Craft(props) {
         if (rarity == "T1") {
 
           let mtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-            activeAccount.address, 
+            activeAddress, 
             "BNFIREKGRXEHCFOEQLTX3PU5SUCMRKDU7WHNBGZA4SXPW42OAHZBP7BPHY", 
             undefined, 
             undefined,
@@ -705,7 +516,7 @@ export default function Craft(props) {
           txns.push(mtxn)
 
           let ptxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-            activeAccount.address, 
+            activeAddress, 
             "4E7OY45TM5DY264HBPF7UYHLTGYUXTCSDKHGG6VB346XZNORURU2BAETBA", 
             undefined, 
             undefined,
@@ -721,7 +532,7 @@ export default function Craft(props) {
         else if (rarity == "T2") {
 
           let mtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-            activeAccount.address, 
+            activeAddress, 
             "BNFIREKGRXEHCFOEQLTX3PU5SUCMRKDU7WHNBGZA4SXPW42OAHZBP7BPHY", 
             undefined, 
             undefined,
@@ -734,7 +545,7 @@ export default function Craft(props) {
           txns.push(mtxn)
 
           let p1txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-            activeAccount.address, 
+            activeAddress, 
             "4E7OY45TM5DY264HBPF7UYHLTGYUXTCSDKHGG6VB346XZNORURU2BAETBA", 
             undefined, 
             undefined,
@@ -747,7 +558,7 @@ export default function Craft(props) {
           txns.push(p1txn)
 
           let p2txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-            activeAccount.address, 
+            activeAddress, 
             "4E7OY45TM5DY264HBPF7UYHLTGYUXTCSDKHGG6VB346XZNORURU2BAETBA", 
             undefined, 
             undefined,
@@ -772,7 +583,7 @@ export default function Craft(props) {
       
         const boxes = []
   
-        let ctxn = algosdk.makeApplicationNoOpTxn(activeAccount.address, params, craftContract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
+        let ctxn = algosdk.makeApplicationNoOpTxn(activeAddress, params, craftContract, appArgs, accounts, foreignApps, foreignAssets, undefined, undefined, undefined, boxes);
   
         txns.push(ctxn)
 

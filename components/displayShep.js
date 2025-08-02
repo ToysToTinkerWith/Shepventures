@@ -113,11 +113,13 @@ export default class DisplayShep extends React.Component {
             const client = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', 443)
 
             let status = await client.status().do();
+            console.log(status)
 
-            const round = status['last-round'];
+            const round = Number(status.lastRound.toString())
     
             const blockInfo = await client.block(round).do();
-            const timestamp = blockInfo.block.ts;
+            console.log(Number(blockInfo.block.header.timestamp.toString()))
+            const timestamp = Number(blockInfo.block.header.timestamp.toString())
 
             this.setState({
                 roundTime: timestamp,
@@ -1165,7 +1167,7 @@ export default class DisplayShep extends React.Component {
                                     <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "jump")}>
                                         <div style={{backgroundColor:  this.props.mode == "light" ? "#EE9B00" : "#9B2226", padding: 10, position: "absolute", top: 20, right: 20, borderRadius: 15}}>
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Long Jump </Typography>
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 50% Survival </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 20% Survival </Typography>
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 70% <br /> 6,942,069  </Typography>     
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 25% <br /> 42,069,420 </Typography>
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 5% <br /> 250m </Typography>     
@@ -1186,7 +1188,7 @@ export default class DisplayShep extends React.Component {
                                     <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "footie")}>
                                         <div style={{backgroundColor:  this.props.mode == "light" ? "#EE9B00" : "#9B2226", padding: 10, position: "absolute", top: 20, right: 20, borderRadius: 15, zIndex: 3}}>
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Footie </Typography>
-                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 70% Survival </Typography>
+                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 50% Survival </Typography>
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 50% </Typography>     
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 40% </Typography>
                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 10% </Typography>     
@@ -1198,7 +1200,11 @@ export default class DisplayShep extends React.Component {
     
     
                                         </div>
-                                        <img src={"quests/footieLight.png"} style={{width: "100%", borderRadius: 15}} />
+                                        {this.props.mode == "light" ?
+                                            <img src={"quests/FootieLight.png"} style={{width: "100%", borderRadius: 15}} />
+                                        :
+                                            <img src={"quests/FootieDark.png"} style={{width: "100%", borderRadius: 15}} />
+                                        }
 
                                     </Button>
                                 </Grid>
@@ -1207,7 +1213,7 @@ export default class DisplayShep extends React.Component {
                                 <Button style={{position: "relative"}} onClick={() => this.props.startQuest(this.props.nftId, "marathon")}>
                                     <div style={{backgroundColor:  this.props.mode == "light" ? "#EE9B00" : "#9B2226", padding: 10, position: "absolute", top: 20, right: 20, borderRadius: 15}}>
                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderBottom: this.props.mode == "light" ? "1px solid black" : "1px solid white"}}> Marathon </Typography>
-                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 80% Survival </Typography>
+                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> 60% Survival </Typography>
                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6EC137", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 20% </Typography>     
                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#6BB5D9", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 40% </Typography>
                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", backgroundColor: "#EC5FFF", color: this.props.mode == "light" ? "#000000" : "#FFFFFF", borderRadius: 15, margin: 5}}> 35% </Typography>     
@@ -1371,17 +1377,17 @@ export default class DisplayShep extends React.Component {
                                                 <div>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survive? (Roll d200) </Typography>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.survivalRoll} </Typography>
-                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.survivalRoll * ((this.state.survival + survival) / 50)) + this.state.result.survivalRoll)} </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {this.state.result.surThresh} </Typography>
 
-                                                    {(this.state.result.surThresh) >= 100 ?
+                                                    {(this.state.result.surThresh) >= 160 ?
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(100)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(160)}</Typography>
                                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
                                                         <br />
                                                         <div>
                                                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward (Roll d1000)</Typography>
                                                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.powerRoll} </Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.powerRoll * ((this.state.power + power) / 50)) + this.state.result.powerRoll)} </Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {this.state.result.powerThresh} </Typography>
                                                             {this.state.result.powerThresh >= 950  ?
                                                                 <div>
                                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(this.state.result.powerThresh)}</Typography>
@@ -1430,7 +1436,7 @@ export default class DisplayShep extends React.Component {
                                                     </div>
                                                     :
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(100)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(160)}</Typography>
                                                         <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
                                                         <Button variant="contained" disabled={this.state.place == ""}
                                                             style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
@@ -1448,17 +1454,17 @@ export default class DisplayShep extends React.Component {
                                                 <div>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survive? (Roll d200) </Typography>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.survivalRoll} </Typography>
-                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.survivalRoll * ((this.state.survival + survival) / 50)) + this.state.result.survivalRoll)} </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {this.state.result.surThresh} </Typography>
 
-                                                    {(this.state.result.surThresh) >= 60 ?
+                                                    {(this.state.result.surThresh) >= 100 ?
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(60)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(100)}</Typography>
                                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
                                                         <br />
                                                         <div>
                                                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward (Roll d1000)</Typography>
                                                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.powerRoll} </Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.powerRoll * ((this.state.power + power) / 50)) + this.state.result.powerRoll)} </Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {this.state.result.powerThresh} </Typography>
                                                             {this.state.result.powerThresh >= 900  ?
                                                                 <div>
                                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "#EC5FFF"}}> {String(this.state.result.powerThresh)}</Typography>
@@ -1505,7 +1511,7 @@ export default class DisplayShep extends React.Component {
                                                     </div>
                                                     :
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(60)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(100)}</Typography>
                                                         <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
                                                         <Button variant="contained" disabled={this.state.place == ""}
                                                             style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}
@@ -1525,17 +1531,17 @@ export default class DisplayShep extends React.Component {
                                                 <div>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Survive? (Roll d200) </Typography>
                                                     <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.survivalRoll} </Typography>
-                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.survivalRoll * ((this.state.survival + survival) / 50)) + this.state.result.survivalRoll)} </Typography>
+                                                    <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {this.state.result.surThresh} </Typography>
 
-                                                    {(this.state.result.surThresh) >= 40 ?
+                                                    {(this.state.result.surThresh) >= 80 ?
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(40)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> {String(this.state.result.surThresh) + " >= " + String(80)}</Typography>
                                                         <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "green"}}> Survived </Typography>     
                                                         <br />
                                                         <div>
                                                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Reward (Roll d1000)</Typography>
                                                             <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Base roll = {this.state.result.powerRoll} </Typography>
-                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {Math.floor((this.state.result.powerRoll * ((this.state.power + power) / 50)) + this.state.result.powerRoll)} </Typography>
+                                                            <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: this.props.mode == "light" ? "#000000" : "#FFFFFF"}}> Effective roll = {this.state.result.powerThresh} </Typography>
                                                             
                                                             {this.state.result.powerThresh >= 950  ?
                                                                 <div>
@@ -1595,7 +1601,7 @@ export default class DisplayShep extends React.Component {
                                                     </div>
                                                     :
                                                     <div>
-                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(60)}</Typography>
+                                                        <Typography color="secondary" align="center" variant="h6" style={{fontFamily: "LondrinaSolid", color: "red"}}> {String(this.state.result.surThresh) + " < " + String(80)}</Typography>
                                                         <img src={"death.gif"} style={{width: "100%", borderRadius: 15}}/>
                                                         <Button variant="contained" disabled={this.state.place == ""}
                                                             style={{backgroundColor: this.state.place == "" ? this.props.mode == "light" ? "#EE9B00" : "#9B2226" : "", borderRadius: 25, margin: 10}}

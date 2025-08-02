@@ -63,7 +63,7 @@ export default class Nav extends React.Component {
            
             <Grid item xs={3} sm={3} md={3}>
               <br />
-              <Connect activeAccount={this.props.activeAccount} page={this.props.page} open={this.props.page == "connect" ? true : false} setPage={this.props.setPage} />
+              <Connect activeAddress={this.props.activeAddress} page={this.props.page} open={this.props.page == "connect" ? true : false} setPage={this.props.setPage} />
             </Grid>
             
             
@@ -94,7 +94,7 @@ export default class Nav extends React.Component {
           </Grid>         
           <Grid item xs={6} sm={3} md={3}>
             <br />
-            <Connect activeAccount={this.props.activeAccount} page={this.props.page} open={this.props.page == "connect" ? true : false} setPage={this.props.setPage} />
+            <Connect page={this.props.page} open={this.props.page == "connect" ? true : false} setPage={this.props.setPage} />
           </Grid>
           
           
